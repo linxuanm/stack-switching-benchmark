@@ -179,3 +179,60 @@ $P report -i wt.data --stdio                # perfmap names the wasm functions
 strace -c -f -o st.txt $WZ microbench/wasm/state_wasmfx.wasm
 /usr/bin/time -f "%es minor=%R major=%F rss=%MKB" $WZ microbench/wasm/state_wasmfx.wasm
 ```
+
+---
+
+## 8. Speculation: how Wizard could close the gap (V2 addition)
+
+Grounded in §3's cluster table — each idea names the cluster it attacks and what removing that
+cluster is worth on the pure-switch benchmarks (`itersum`/`state`, the 12–13× rows). Mechanism
+details live in COMPILER_DIFF §7 and COMPRESSION_PLAN §3–4; this section is the
+profile-weighted ordering of that work.
+
+1. **Resume-site handler tables — kill the lookup cluster (worth ≈20–23 %).** The largest
+   runtime cost is reconstructing, on every suspension, information the resume site knew at
+   compile time: `lookupPc` + its `Vector` search recover the parent's bytecode pc from a return
+   address, and `findHandler` linearly scans for the tag. If SPC's `resume` publishes a static
+   per-site handler table (tag → handler-stub address) on the stack object — one store — the
+   suspend path reads it directly and the entire cluster (`lookupPc`, `Vector<…FuncLoc>.[]`,
+   `findHandler`, `lookupTopPc`, `findUserCode`, `computePcFromCode`, most frame-handle work)
+   disappears from the hot path. COMPILER_DIFF §7.3 sketches the mechanism; the profile says it
+   is the single highest-leverage change.
+2. **Allocation-free payload transfer — kill marshalling *and* the memory fallout (worth
+   ≈30–40 % combined).** Value marshalling (≈18–23 %) is `popN`/`pushN`/`storeValue` boxing
+   tagged slots into fresh `Array<Value>`s; the GC + kernel-memory rows (≈12–22 %) are the
+   *consequence* of those allocations (semispace growth, `RiGc.memClear` zeroing, 137 k–339 k
+   page faults, 0.5–0.9 GB heaps). Copying payloads slot-to-slot between the two tagged value
+   stacks — the six-instruction-per-value loop the inline `resume` already uses
+   (`emit_value_copy`) — eliminates both rows at once and, as a bonus, removes the allocation
+   that crashes the interpreter's GC under switch pressure (COMPILER_DIFF §5.5). This is the
+   best ratio of effort to profile weight: it is runtime-only surgery, no codegen changes.
+3. **Inline the suspend/switch driver (worth ≈10–18 %, more later).** What remains of
+   `runtime_handle_suspend` after 1–2 — state flips, chain splice, the return-address rewrite —
+   is ~30 instructions of work behind a spill-everything runtime call. Emitting it inline in SPC
+   (COMPILER_DIFF §7.4, with the current runtime kept as the mixed-tier fallback) removes the
+   driver row and the call-boundary spills. Include the two small companions the profile
+   surfaced: inline `table.get`/`table.set` (the fiber-c shim pays `Runtime.TABLE_SET/GET`
+   runtime calls of 1.5–2.5 % that Cranelift compiles to a few instructions), and a cheaper
+   creation path for `c10m`/`skynet` (`CONT_NEW`/`CONT_BIND` runtime calls plus lazy stack
+   allocation, COMPRESSION_PLAN §3.2).
+4. **Codegen quality is the floor (≈2–2.7×), and it is a different project.** Stacking 1–3 on
+   `state` removes ≈73 % of the time (23.3 lookup + 17.7 marshalling + 14.5 memory + 18.3
+   driver), a ≈3.7× speedup — taking the gap from ≈12× to ≈3×. What remains is §5's JIT-vs-JIT
+   ratio: SPC's single-pass output (everything spilled at block boundaries and calls, no
+   regalloc across expressions, runtime calls for slow ops) against Cranelift's optimizing
+   pipeline. Closing *that* means either an optimizing tier or targeted SPC improvements
+   (keeping hot locals in registers across suspension-free regions, shrinking the 32-byte
+   tagged-slot traffic); realistically Wizard matches Wasmtime on switch-heavy code only when
+   the switch cost is small enough that the remaining 2× on straight-line code is diluted —
+   which is exactly where `sieve` (2.8×) already sits.
+5. **How to verify**: this profile setup is the harness — re-run `perf record` + the bucketer
+   after each stage and watch the targeted cluster vanish; the per-pair ns in §1 (184 → target
+   <40 with 1–3) and the fault counts (137 k → ~1 k with 2) are the acceptance numbers, with
+   `state`/`itersum` as the sensitive workloads and `sieve`/`treesum` guarding against
+   regressions in compute-dominated code.
+
+Ordering by measured weight: **2 first** (biggest combined share, least invasive, fixes a
+correctness bug too), then **1**, then **3**, with **4** as the long-term tier question. This
+matches COMPILER_DIFF §7's staging, now with the profile as evidence that the staged wins are
+additive and sum to most of the gap.
