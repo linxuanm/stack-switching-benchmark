@@ -182,10 +182,10 @@ step_smoke() {
   local rc=0 out
   if [ -x wizard-engine/bin/wizeng.x86-64-linux ]; then
     out=$(wizard-engine/bin/wizeng.x86-64-linux --ext:all --stack-size=65536 --mode=jit "$WASM_OUT/itersum_wasmfx.wasm" 1000 2>&1)       && echo "wizard   itersum 1000 -> $out" || { echo "wizard smoke FAILED: $out"; rc=1; }
-  else echo "wizard binary missing — smoke skipped"; fi
+  else echo "wizard binary missing"; rc=1; fi
   if [ -x wasmtime/target/release/wasmtime ]; then
     out=$(wasmtime/target/release/wasmtime run -W=exceptions,function-references,gc,stack-switching,tail-call "$WASM_OUT/itersum_wasmfx.wasm" 1000 2>&1)       && echo "wasmtime itersum 1000 -> $out" || { echo "wasmtime smoke FAILED: $out"; rc=1; }
-  else echo "wasmtime binary missing — smoke skipped"; fi
+  else echo "wasmtime binary missing"; rc=1; fi
   return $rc
 }
 
