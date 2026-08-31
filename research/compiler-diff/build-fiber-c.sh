@@ -4,12 +4,12 @@
 # Usage: build-fiber-c.sh <name>      e.g. itersum  or  itersum_switch
 set -euo pipefail
 NAME=$1
-REPO=/home/linxuanm/workspace/stack-switching-benchmark
+REPO="${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 FIBER=$REPO/fiber-c
 OUT=${OUT:-$(dirname "$0")/fiber-c-build}
-WASI_SDK=${WASI_SDK:-/home/linxuanm/workspace/benchfx/tools/wasi-sdk/wasi-sdk-22.0}
-BINARYEN=${BINARYEN:-/home/linxuanm/dev_path/binaryen}
-WASM_INTERP=${WASM_INTERP:-/home/linxuanm/.opam/default/bin/wasm}
+WASI_SDK=${WASI_SDK:-$HOME/workspace/benchfx/tools/wasi-sdk/wasi-sdk-22.0}
+BINARYEN=${BINARYEN:-$HOME/dev_path/binaryen}
+WASM_INTERP=${WASM_INTERP:-$HOME/.opam/default/bin/wasm}
 WASICC=$WASI_SDK/bin/clang
 SHADOW_STACK_FLAG=-DFIBER_WASMFX_PRESERVE_SHADOW_STACK        # make.config: WASMFX_PRESERVE_SHADOW_STACK=1
 CAP=-DWASMFX_CONT_TABLE_INITIAL_CAPACITY=1024                 # make.config default
