@@ -1,0 +1,18 @@
+[submodule "benches"]
+	path = benches
+	url = https://github.com/ocaml-bench/benches.git
+[submodule "macro-benches"]
+	path = macro-benches
+	url = https://github.com/ocaml-bench/macro-benches.git
+[submodule "angstrom"]
+	path = angstrom
+	url = https://github.com/inhabitedtype/angstrom.git
+[submodule "fiber-c"]
+	path = fiber-c
+	url = https://github.com/wasmfx/fiber-c.git
+[submodule "wizard-engine"]
+	path = wizard-engine
+	url = https://github.com/titzer/wizard-engine.git
+[submodule "wasmtime"]
+	path = wasmtime
+	url = https://github.com/bytecodealliance/wasmtime.git
