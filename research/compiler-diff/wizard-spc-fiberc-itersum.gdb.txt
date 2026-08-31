@@ -1,0 +1,275 @@
+Catchpoint 1 (syscalls 'exit' [60] 'exit_group' [231])
+499500
+
+Catchpoint 1 (call to syscall exit), 0x000000000820028b in alloc ()
+Dump of assembler code from 0x7ffff7fdd3ce to 0x7ffff7fdd843:
+   0x00007ffff7fdd3ce:	48 83 ec 68	sub    rsp,0x68
+   0x00007ffff7fdd3d2:	48 89 74 24 18	mov    QWORD PTR [rsp+0x18],rsi
+   0x00007ffff7fdd3d7:	48 89 14 24	mov    QWORD PTR [rsp],rdx
+   0x00007ffff7fdd3db:	48 8b 7a 10	mov    rdi,QWORD PTR [rdx+0x10]
+   0x00007ffff7fdd3df:	48 89 7c 24 50	mov    QWORD PTR [rsp+0x50],rdi
+   0x00007ffff7fdd3e4:	48 c7 44 24 60 00 00 00 00	mov    QWORD PTR [rsp+0x60],0x0
+   0x00007ffff7fdd3ed:	48 c7 44 24 28 00 00 00 00	mov    QWORD PTR [rsp+0x28],0x0
+   0x00007ffff7fdd3f6:	49 89 f3	mov    r11,rsi
+   0x00007ffff7fdd3f9:	49 83 eb 60	sub    r11,0x60
+   0x00007ffff7fdd3fd:	4c 89 5c 24 10	mov    QWORD PTR [rsp+0x10],r11
+   0x00007ffff7fdd402:	4c 8b 57 10	mov    r10,QWORD PTR [rdi+0x10]
+   0x00007ffff7fdd406:	4d 8b 52 08	mov    r10,QWORD PTR [r10+0x8]
+   0x00007ffff7fdd40a:	4d 8b 52 40	mov    r10,QWORD PTR [r10+0x40]
+   0x00007ffff7fdd40e:	4c 89 54 24 08	mov    QWORD PTR [rsp+0x8],r10
+   0x00007ffff7fdd413:	48 8b 44 24 50	mov    rax,QWORD PTR [rsp+0x50]
+   0x00007ffff7fdd418:	48 8b 40 30	mov    rax,QWORD PTR [rax+0x30]
+   0x00007ffff7fdd41c:	48 8b 40 08	mov    rax,QWORD PTR [rax+0x8]
+   0x00007ffff7fdd420:	8b 58 20	mov    ebx,DWORD PTR [rax+0x20]
+   0x00007ffff7fdd423:	48 8b 44 24 50	mov    rax,QWORD PTR [rsp+0x50]
+   0x00007ffff7fdd428:	48 8b 40 30	mov    rax,QWORD PTR [rax+0x30]
+   0x00007ffff7fdd42c:	48 8b 40 10	mov    rax,QWORD PTR [rax+0x10]
+   0x00007ffff7fdd430:	8b 70 20	mov    esi,DWORD PTR [rax+0x20]
+   0x00007ffff7fdd433:	41 8b 04 32	mov    eax,DWORD PTR [r10+rsi*1]
+   0x00007ffff7fdd437:	41 8b 73 10	mov    esi,DWORD PTR [r11+0x10]
+   0x00007ffff7fdd43b:	48 89 f1	mov    rcx,rsi
+   0x00007ffff7fdd43e:	c1 e1 02	shl    ecx,0x2
+   0x00007ffff7fdd441:	01 c8	add    eax,ecx
+   0x00007ffff7fdd443:	41 8b 0c 02	mov    ecx,DWORD PTR [r10+rax*1]
+   0x00007ffff7fdd447:	48 8b 44 24 50	mov    rax,QWORD PTR [rsp+0x50]
+   0x00007ffff7fdd44c:	48 8b 40 30	mov    rax,QWORD PTR [rax+0x30]
+   0x00007ffff7fdd450:	48 8b 40 08	mov    rax,QWORD PTR [rax+0x8]
+   0x00007ffff7fdd454:	89 48 20	mov    DWORD PTR [rax+0x20],ecx
+   0x00007ffff7fdd457:	41 8b 43 30	mov    eax,DWORD PTR [r11+0x30]
+   0x00007ffff7fdd45b:	41 c7 43 60 7f 00 00 00	mov    DWORD PTR [r11+0x60],0x7f
+   0x00007ffff7fdd463:	41 c7 83 80 00 00 00 7f 00 00 00	mov    DWORD PTR [r11+0x80],0x7f
+   0x00007ffff7fdd46e:	41 c7 83 a0 00 00 00 68 00 00 00	mov    DWORD PTR [r11+0xa0],0x68
+   0x00007ffff7fdd479:	41 c7 83 c0 00 00 00 7f 00 00 00	mov    DWORD PTR [r11+0xc0],0x7f
+   0x00007ffff7fdd484:	41 c7 83 e0 00 00 00 7f 00 00 00	mov    DWORD PTR [r11+0xe0],0x7f
+   0x00007ffff7fdd48f:	41 89 5b 70	mov    DWORD PTR [r11+0x70],ebx
+   0x00007ffff7fdd493:	41 89 83 d0 00 00 00	mov    DWORD PTR [r11+0xd0],eax
+   0x00007ffff7fdd49a:	41 89 b3 f0 00 00 00	mov    DWORD PTR [r11+0xf0],esi
+   0x00007ffff7fdd4a1:	41 c7 83 90 00 00 00 00 00 00 00	mov    DWORD PTR [r11+0x90],0x0
+   0x00007ffff7fdd4ac:	49 c7 83 b0 00 00 00 00 00 00 00	mov    QWORD PTR [r11+0xb0],0x0
+   0x00007ffff7fdd4b7:	49 c7 83 b8 00 00 00 00 00 00 00	mov    QWORD PTR [r11+0xb8],0x0
+   0x00007ffff7fdd4c2:	4c 89 de	mov    rsi,r11
+   0x00007ffff7fdd4c5:	48 81 c6 00 01 00 00	add    rsi,0x100
+   0x00007ffff7fdd4cc:	48 89 74 24 18	mov    QWORD PTR [rsp+0x18],rsi
+   0x00007ffff7fdd4d1:	48 8b 2c 25 c0 e2 3b 08	mov    rbp,QWORD PTR ds:0x83be2c0
+   0x00007ffff7fdd4d9:	48 89 75 30	mov    QWORD PTR [rbp+0x30],rsi
+   0x00007ffff7fdd4dd:	48 8b 34 25 c0 e2 3b 08	mov    rsi,QWORD PTR ds:0x83be2c0
+   0x00007ffff7fdd4e5:	48 89 66 38	mov    QWORD PTR [rsi+0x38],rsp
+   0x00007ffff7fdd4e9:	48 83 6e 38 08	sub    QWORD PTR [rsi+0x38],0x8
+   0x00007ffff7fdd4ee:	48 8b 54 24 50	mov    rdx,QWORD PTR [rsp+0x50]
+   0x00007ffff7fdd4f3:	31 c9	xor    ecx,ecx
+   0x00007ffff7fdd4f5:	bd a8 7e 23 08	mov    ebp,0x8237ea8
+   0x00007ffff7fdd4fa:	ff d5	call   rbp
+   0x00007ffff7fdd4fc:	48 8b 2c 25 c0 e2 3b 08	mov    rbp,QWORD PTR ds:0x83be2c0
+   0x00007ffff7fdd504:	48 83 45 38 08	add    QWORD PTR [rbp+0x38],0x8
+   0x00007ffff7fdd509:	4c 8b 5c 24 10	mov    r11,QWORD PTR [rsp+0x10]
+   0x00007ffff7fdd50e:	4c 8b 54 24 08	mov    r10,QWORD PTR [rsp+0x8]
+   0x00007ffff7fdd513:	49 83 bb f0 00 00 00 00	cmp    QWORD PTR [r11+0xf0],0x0
+   0x00007ffff7fdd51b:	0f 85 26 00 00 00	jne    0x7ffff7fdd547
+   0x00007ffff7fdd521:	41 c7 83 90 00 00 00 00 00 00 00	mov    DWORD PTR [r11+0x90],0x0
+   0x00007ffff7fdd52c:	49 c7 83 b0 00 00 00 00 00 00 00	mov    QWORD PTR [r11+0xb0],0x0
+   0x00007ffff7fdd537:	49 c7 83 b8 00 00 00 00 00 00 00	mov    QWORD PTR [r11+0xb8],0x0
+   0x00007ffff7fdd542:	e9 ab 01 00 00	jmp    0x7ffff7fdd6f2
+   0x00007ffff7fdd547:	f3 41 0f 6f 83 f0 00 00 00	movdqu xmm0,XMMWORD PTR [r11+0xf0]
+   0x00007ffff7fdd550:	0f 28 c8	movaps xmm1,xmm0
+   0x00007ffff7fdd553:	66 48 0f 3a 16 c8 00	pextrq rax,xmm1,0x0
+   0x00007ffff7fdd55a:	48 83 f8 00	cmp    rax,0x0
+   0x00007ffff7fdd55e:	0f 84 b2 02 00 00	je     0x7ffff7fdd816
+   0x00007ffff7fdd564:	66 48 0f 3a 16 cd 01	pextrq rbp,xmm1,0x1
+   0x00007ffff7fdd56b:	48 39 68 08	cmp    QWORD PTR [rax+0x8],rbp
+   0x00007ffff7fdd56f:	0f 85 b0 02 00 00	jne    0x7ffff7fdd825
+   0x00007ffff7fdd575:	48 83 40 08 01	add    QWORD PTR [rax+0x8],0x1
+   0x00007ffff7fdd57a:	4c 89 de	mov    rsi,r11
+   0x00007ffff7fdd57d:	48 81 c6 e0 00 00 00	add    rsi,0xe0
+   0x00007ffff7fdd584:	b9 01 00 00 00	mov    ecx,0x1
+   0x00007ffff7fdd589:	49 89 c8	mov    r8,rcx
+   0x00007ffff7fdd58c:	4d 6b c0 20	imul   r8,r8,0x20
+   0x00007ffff7fdd590:	48 89 c5	mov    rbp,rax
+   0x00007ffff7fdd593:	48 8b 55 30	mov    rdx,QWORD PTR [rbp+0x30]
+   0x00007ffff7fdd597:	4c 01 45 30	add    QWORD PTR [rbp+0x30],r8
+   0x00007ffff7fdd59b:	4c 29 c6	sub    rsi,r8
+   0x00007ffff7fdd59e:	83 f9 00	cmp    ecx,0x0
+   0x00007ffff7fdd5a1:	74 1e	je     0x7ffff7fdd5c1
+   0x00007ffff7fdd5a3:	c1 e1 05	shl    ecx,0x5
+   0x00007ffff7fdd5a6:	f3 0f 6f 54 0e f0	movdqu xmm2,XMMWORD PTR [rsi+rcx*1-0x10]
+   0x00007ffff7fdd5ac:	f3 0f 7f 54 0a f0	movdqu XMMWORD PTR [rdx+rcx*1-0x10],xmm2
+   0x00007ffff7fdd5b2:	40 8a 6c 0e e0	mov    bpl,BYTE PTR [rsi+rcx*1-0x20]
+   0x00007ffff7fdd5b7:	40 88 6c 0a e0	mov    BYTE PTR [rdx+rcx*1-0x20],bpl
+   0x00007ffff7fdd5bc:	83 e9 20	sub    ecx,0x20
+   0x00007ffff7fdd5bf:	75 e5	jne    0x7ffff7fdd5a6
+   0x00007ffff7fdd5c1:	48 8b 1c 25 c0 e2 3b 08	mov    rbx,QWORD PTR ds:0x83be2c0
+   0x00007ffff7fdd5c9:	4c 89 de	mov    rsi,r11
+   0x00007ffff7fdd5cc:	48 81 c6 c0 00 00 00	add    rsi,0xc0
+   0x00007ffff7fdd5d3:	48 89 74 24 18	mov    QWORD PTR [rsp+0x18],rsi
+   0x00007ffff7fdd5d8:	48 89 73 30	mov    QWORD PTR [rbx+0x30],rsi
+   0x00007ffff7fdd5dc:	48 89 63 38	mov    QWORD PTR [rbx+0x38],rsp
+   0x00007ffff7fdd5e0:	48 83 6b 38 08	sub    QWORD PTR [rbx+0x38],0x8
+   0x00007ffff7fdd5e5:	c7 43 60 02 00 00 00	mov    DWORD PTR [rbx+0x60],0x2
+   0x00007ffff7fdd5ec:	48 89 c5	mov    rbp,rax
+   0x00007ffff7fdd5ef:	c7 45 60 04 00 00 00	mov    DWORD PTR [rbp+0x60],0x4
+   0x00007ffff7fdd5f6:	48 8b 6d 18	mov    rbp,QWORD PTR [rbp+0x18]
+   0x00007ffff7fdd5fa:	48 89 5d 10	mov    QWORD PTR [rbp+0x10],rbx
+   0x00007ffff7fdd5fe:	48 8b 5b 38	mov    rbx,QWORD PTR [rbx+0x38]
+   0x00007ffff7fdd602:	48 8b 6d 48	mov    rbp,QWORD PTR [rbp+0x48]
+   0x00007ffff7fdd606:	48 89 5d 00	mov    QWORD PTR [rbp+0x0],rbx
+   0x00007ffff7fdd60a:	c7 40 18 00 00 00 00	mov    DWORD PTR [rax+0x18],0x0
+   0x00007ffff7fdd611:	e8 0f 00 00 00	call   0x7ffff7fdd625
+   0x00007ffff7fdd616:	4c 8b 5c 24 10	mov    r11,QWORD PTR [rsp+0x10]
+   0x00007ffff7fdd61b:	4c 8b 54 24 08	mov    r10,QWORD PTR [rsp+0x8]
+   0x00007ffff7fdd620:	e9 0f 00 00 00	jmp    0x7ffff7fdd634
+   0x00007ffff7fdd625:	48 89 04 25 c0 e2 3b 08	mov    QWORD PTR ds:0x83be2c0,rax
+   0x00007ffff7fdd62d:	48 8b 60 38	mov    rsp,QWORD PTR [rax+0x38]
+   0x00007ffff7fdd631:	5d	pop    rbp
+   0x00007ffff7fdd632:	ff e5	jmp    rbp
+   0x00007ffff7fdd634:	41 8b 83 d0 00 00 00	mov    eax,DWORD PTR [r11+0xd0]
+   0x00007ffff7fdd63b:	41 8b 5b 50	mov    ebx,DWORD PTR [r11+0x50]
+   0x00007ffff7fdd63f:	31 f6	xor    esi,esi
+   0x00007ffff7fdd641:	41 89 34 1a	mov    DWORD PTR [r10+rbx*1],esi
+   0x00007ffff7fdd645:	41 8b 73 10	mov    esi,DWORD PTR [r11+0x10]
+   0x00007ffff7fdd649:	41 c7 83 c0 00 00 00 7f 00 00 00	mov    DWORD PTR [r11+0xc0],0x7f
+   0x00007ffff7fdd654:	41 c7 83 e0 00 00 00 68 00 00 00	mov    DWORD PTR [r11+0xe0],0x68
+   0x00007ffff7fdd65f:	41 89 43 30	mov    DWORD PTR [r11+0x30],eax
+   0x00007ffff7fdd663:	41 89 b3 d0 00 00 00	mov    DWORD PTR [r11+0xd0],esi
+   0x00007ffff7fdd66a:	49 c7 83 f0 00 00 00 00 00 00 00	mov    QWORD PTR [r11+0xf0],0x0
+   0x00007ffff7fdd675:	49 c7 83 f8 00 00 00 00 00 00 00	mov    QWORD PTR [r11+0xf8],0x0
+   0x00007ffff7fdd680:	4c 89 de	mov    rsi,r11
+   0x00007ffff7fdd683:	48 81 c6 00 01 00 00	add    rsi,0x100
+   0x00007ffff7fdd68a:	48 89 74 24 18	mov    QWORD PTR [rsp+0x18],rsi
+   0x00007ffff7fdd68f:	48 8b 2c 25 c0 e2 3b 08	mov    rbp,QWORD PTR ds:0x83be2c0
+   0x00007ffff7fdd697:	48 89 75 30	mov    QWORD PTR [rbp+0x30],rsi
+   0x00007ffff7fdd69b:	48 8b 34 25 c0 e2 3b 08	mov    rsi,QWORD PTR ds:0x83be2c0
+   0x00007ffff7fdd6a3:	48 89 66 38	mov    QWORD PTR [rsi+0x38],rsp
+   0x00007ffff7fdd6a7:	48 83 6e 38 08	sub    QWORD PTR [rsi+0x38],0x8
+   0x00007ffff7fdd6ac:	48 8b 54 24 50	mov    rdx,QWORD PTR [rsp+0x50]
+   0x00007ffff7fdd6b1:	31 c9	xor    ecx,ecx
+   0x00007ffff7fdd6b3:	bd 98 7f 23 08	mov    ebp,0x8237f98
+   0x00007ffff7fdd6b8:	ff d5	call   rbp
+   0x00007ffff7fdd6ba:	48 8b 2c 25 c0 e2 3b 08	mov    rbp,QWORD PTR ds:0x83be2c0
+   0x00007ffff7fdd6c2:	48 83 45 38 08	add    QWORD PTR [rbp+0x38],0x8
+   0x00007ffff7fdd6c7:	4c 8b 5c 24 10	mov    r11,QWORD PTR [rsp+0x10]
+   0x00007ffff7fdd6cc:	4c 8b 54 24 08	mov    r10,QWORD PTR [rsp+0x8]
+   0x00007ffff7fdd6d1:	41 8b 43 70	mov    eax,DWORD PTR [r11+0x70]
+   0x00007ffff7fdd6d5:	48 8b 5c 24 50	mov    rbx,QWORD PTR [rsp+0x50]
+   0x00007ffff7fdd6da:	48 8b 5b 30	mov    rbx,QWORD PTR [rbx+0x30]
+   0x00007ffff7fdd6de:	48 8b 5b 08	mov    rbx,QWORD PTR [rbx+0x8]
+   0x00007ffff7fdd6e2:	89 43 20	mov    DWORD PTR [rbx+0x20],eax
+   0x00007ffff7fdd6e5:	41 8b 5b 30	mov    ebx,DWORD PTR [r11+0x30]
+   0x00007ffff7fdd6e9:	41 89 5b 10	mov    DWORD PTR [r11+0x10],ebx
+   0x00007ffff7fdd6ed:	e9 16 01 00 00	jmp    0x7ffff7fdd808
+   0x00007ffff7fdd6f2:	41 8b 43 50	mov    eax,DWORD PTR [r11+0x50]
+   0x00007ffff7fdd6f6:	bb 02 00 00 00	mov    ebx,0x2
+   0x00007ffff7fdd6fb:	41 89 1c 02	mov    DWORD PTR [r10+rax*1],ebx
+   0x00007ffff7fdd6ff:	41 c7 43 10 ff ff ff ff	mov    DWORD PTR [r11+0x10],0xffffffff
+   0x00007ffff7fdd707:	e9 fc 00 00 00	jmp    0x7ffff7fdd808
+   0x00007ffff7fdd70c:	f3 41 0f 6f 83 f0 00 00 00	movdqu xmm0,XMMWORD PTR [r11+0xf0]
+   0x00007ffff7fdd715:	41 8b 83 d0 00 00 00	mov    eax,DWORD PTR [r11+0xd0]
+   0x00007ffff7fdd71c:	41 8b 5b 10	mov    ebx,DWORD PTR [r11+0x10]
+   0x00007ffff7fdd720:	41 c7 83 c0 00 00 00 7f 00 00 00	mov    DWORD PTR [r11+0xc0],0x7f
+   0x00007ffff7fdd72b:	41 c7 83 e0 00 00 00 68 00 00 00	mov    DWORD PTR [r11+0xe0],0x68
+   0x00007ffff7fdd736:	41 89 43 30	mov    DWORD PTR [r11+0x30],eax
+   0x00007ffff7fdd73a:	41 89 83 90 00 00 00	mov    DWORD PTR [r11+0x90],eax
+   0x00007ffff7fdd741:	f3 41 0f 7f 83 b0 00 00 00	movdqu XMMWORD PTR [r11+0xb0],xmm0
+   0x00007ffff7fdd74a:	f3 41 0f 7f 83 f0 00 00 00	movdqu XMMWORD PTR [r11+0xf0],xmm0
+   0x00007ffff7fdd753:	41 89 9b d0 00 00 00	mov    DWORD PTR [r11+0xd0],ebx
+   0x00007ffff7fdd75a:	4c 89 de	mov    rsi,r11
+   0x00007ffff7fdd75d:	48 81 c6 00 01 00 00	add    rsi,0x100
+   0x00007ffff7fdd764:	48 89 74 24 18	mov    QWORD PTR [rsp+0x18],rsi
+   0x00007ffff7fdd769:	48 8b 2c 25 c0 e2 3b 08	mov    rbp,QWORD PTR ds:0x83be2c0
+   0x00007ffff7fdd771:	48 89 75 30	mov    QWORD PTR [rbp+0x30],rsi
+   0x00007ffff7fdd775:	48 8b 34 25 c0 e2 3b 08	mov    rsi,QWORD PTR ds:0x83be2c0
+   0x00007ffff7fdd77d:	48 89 66 38	mov    QWORD PTR [rsi+0x38],rsp
+   0x00007ffff7fdd781:	48 83 6e 38 08	sub    QWORD PTR [rsi+0x38],0x8
+   0x00007ffff7fdd786:	48 8b 54 24 50	mov    rdx,QWORD PTR [rsp+0x50]
+   0x00007ffff7fdd78b:	31 c9	xor    ecx,ecx
+   0x00007ffff7fdd78d:	bd 98 7f 23 08	mov    ebp,0x8237f98
+   0x00007ffff7fdd792:	ff d5	call   rbp
+   0x00007ffff7fdd794:	48 8b 2c 25 c0 e2 3b 08	mov    rbp,QWORD PTR ds:0x83be2c0
+   0x00007ffff7fdd79c:	48 83 45 38 08	add    QWORD PTR [rbp+0x38],0x8
+   0x00007ffff7fdd7a1:	4c 8b 5c 24 10	mov    r11,QWORD PTR [rsp+0x10]
+   0x00007ffff7fdd7a6:	4c 8b 54 24 08	mov    r10,QWORD PTR [rsp+0x8]
+   0x00007ffff7fdd7ab:	41 8b 43 50	mov    eax,DWORD PTR [r11+0x50]
+   0x00007ffff7fdd7af:	bb 01 00 00 00	mov    ebx,0x1
+   0x00007ffff7fdd7b4:	41 89 1c 02	mov    DWORD PTR [r10+rax*1],ebx
+   0x00007ffff7fdd7b8:	48 8b 5c 24 50	mov    rbx,QWORD PTR [rsp+0x50]
+   0x00007ffff7fdd7bd:	48 8b 5b 30	mov    rbx,QWORD PTR [rbx+0x30]
+   0x00007ffff7fdd7c1:	48 8b 5b 10	mov    rbx,QWORD PTR [rbx+0x10]
+   0x00007ffff7fdd7c5:	8b 73 20	mov    esi,DWORD PTR [rbx+0x20]
+   0x00007ffff7fdd7c8:	41 8b 1c 32	mov    ebx,DWORD PTR [r10+rsi*1]
+   0x00007ffff7fdd7cc:	41 8b 73 10	mov    esi,DWORD PTR [r11+0x10]
+   0x00007ffff7fdd7d0:	48 89 f1	mov    rcx,rsi
+   0x00007ffff7fdd7d3:	c1 e1 02	shl    ecx,0x2
+   0x00007ffff7fdd7d6:	01 cb	add    ebx,ecx
+   0x00007ffff7fdd7d8:	48 8b 4c 24 50	mov    rcx,QWORD PTR [rsp+0x50]
+   0x00007ffff7fdd7dd:	48 8b 49 30	mov    rcx,QWORD PTR [rcx+0x30]
+   0x00007ffff7fdd7e1:	48 8b 49 08	mov    rcx,QWORD PTR [rcx+0x8]
+   0x00007ffff7fdd7e5:	8b 51 20	mov    edx,DWORD PTR [rcx+0x20]
+   0x00007ffff7fdd7e8:	41 89 14 1a	mov    DWORD PTR [r10+rbx*1],edx
+   0x00007ffff7fdd7ec:	41 8b 5b 70	mov    ebx,DWORD PTR [r11+0x70]
+   0x00007ffff7fdd7f0:	48 8b 4c 24 50	mov    rcx,QWORD PTR [rsp+0x50]
+   0x00007ffff7fdd7f5:	48 8b 49 30	mov    rcx,QWORD PTR [rcx+0x30]
+   0x00007ffff7fdd7f9:	48 8b 49 08	mov    rcx,QWORD PTR [rcx+0x8]
+   0x00007ffff7fdd7fd:	89 59 20	mov    DWORD PTR [rcx+0x20],ebx
+   0x00007ffff7fdd800:	41 8b 4b 30	mov    ecx,DWORD PTR [r11+0x30]
+   0x00007ffff7fdd804:	41 89 4b 10	mov    DWORD PTR [r11+0x10],ecx
+   0x00007ffff7fdd808:	4c 89 de	mov    rsi,r11
+   0x00007ffff7fdd80b:	48 83 c6 20	add    rsi,0x20
+   0x00007ffff7fdd80f:	31 c0	xor    eax,eax
+   0x00007ffff7fdd811:	48 83 c4 68	add    rsp,0x68
+   0x00007ffff7fdd815:	c3	ret    
+   0x00007ffff7fdd816:	c7 44 24 58 26 00 00 00	mov    DWORD PTR [rsp+0x58],0x26
+   0x00007ffff7fdd81e:	bd 6e 53 3d 08	mov    ebp,0x83d536e
+   0x00007ffff7fdd823:	ff e5	jmp    rbp
+   0x00007ffff7fdd825:	c7 44 24 58 26 00 00 00	mov    DWORD PTR [rsp+0x58],0x26
+   0x00007ffff7fdd82d:	bd be 54 3d 08	mov    ebp,0x83d54be
+   0x00007ffff7fdd832:	ff e5	jmp    rbp
+   0x00007ffff7fdd834:	4c 8b 5c 24 10	mov    r11,QWORD PTR [rsp+0x10]
+   0x00007ffff7fdd839:	4c 8b 54 24 08	mov    r10,QWORD PTR [rsp+0x8]
+   0x00007ffff7fdd83e:	e9 c9 fe ff ff	jmp    0x7ffff7fdd70c
+End of assembler dump.
+Dump of assembler code from 0x7ffff7fdd843 to 0x7ffff7fdd912:
+   0x00007ffff7fdd843:	48 83 ec 68	sub    rsp,0x68
+   0x00007ffff7fdd847:	48 89 74 24 18	mov    QWORD PTR [rsp+0x18],rsi
+   0x00007ffff7fdd84c:	48 89 14 24	mov    QWORD PTR [rsp],rdx
+   0x00007ffff7fdd850:	48 8b 7a 10	mov    rdi,QWORD PTR [rdx+0x10]
+   0x00007ffff7fdd854:	48 89 7c 24 50	mov    QWORD PTR [rsp+0x50],rdi
+   0x00007ffff7fdd859:	48 c7 44 24 60 00 00 00 00	mov    QWORD PTR [rsp+0x60],0x0
+   0x00007ffff7fdd862:	48 c7 44 24 28 00 00 00 00	mov    QWORD PTR [rsp+0x28],0x0
+   0x00007ffff7fdd86b:	49 89 f3	mov    r11,rsi
+   0x00007ffff7fdd86e:	49 83 eb 20	sub    r11,0x20
+   0x00007ffff7fdd872:	4c 89 5c 24 10	mov    QWORD PTR [rsp+0x10],r11
+   0x00007ffff7fdd877:	4c 8b 57 10	mov    r10,QWORD PTR [rdi+0x10]
+   0x00007ffff7fdd87b:	4d 8b 52 08	mov    r10,QWORD PTR [r10+0x8]
+   0x00007ffff7fdd87f:	4d 8b 52 40	mov    r10,QWORD PTR [r10+0x40]
+   0x00007ffff7fdd883:	4c 89 54 24 08	mov    QWORD PTR [rsp+0x8],r10
+   0x00007ffff7fdd888:	41 8b 43 10	mov    eax,DWORD PTR [r11+0x10]
+   0x00007ffff7fdd88c:	41 c7 43 20 7f 00 00 00	mov    DWORD PTR [r11+0x20],0x7f
+   0x00007ffff7fdd894:	41 89 43 30	mov    DWORD PTR [r11+0x30],eax
+   0x00007ffff7fdd898:	4c 89 de	mov    rsi,r11
+   0x00007ffff7fdd89b:	48 83 c6 40	add    rsi,0x40
+   0x00007ffff7fdd89f:	48 89 74 24 18	mov    QWORD PTR [rsp+0x18],rsi
+   0x00007ffff7fdd8a4:	48 8b 2c 25 c0 e2 3b 08	mov    rbp,QWORD PTR ds:0x83be2c0
+   0x00007ffff7fdd8ac:	48 89 75 30	mov    QWORD PTR [rbp+0x30],rsi
+   0x00007ffff7fdd8b0:	48 8b 34 25 c0 e2 3b 08	mov    rsi,QWORD PTR ds:0x83be2c0
+   0x00007ffff7fdd8b8:	48 89 66 38	mov    QWORD PTR [rsi+0x38],rsp
+   0x00007ffff7fdd8bc:	48 83 6e 38 08	sub    QWORD PTR [rsi+0x38],0x8
+   0x00007ffff7fdd8c1:	48 8b 54 24 50	mov    rdx,QWORD PTR [rsp+0x50]
+   0x00007ffff7fdd8c6:	31 c9	xor    ecx,ecx
+   0x00007ffff7fdd8c8:	bd c0 0d 24 08	mov    ebp,0x8240dc0
+   0x00007ffff7fdd8cd:	ff d5	call   rbp
+   0x00007ffff7fdd8cf:	e8 0f 00 00 00	call   0x7ffff7fdd8e3
+   0x00007ffff7fdd8d4:	4c 8b 5c 24 10	mov    r11,QWORD PTR [rsp+0x10]
+   0x00007ffff7fdd8d9:	4c 8b 54 24 08	mov    r10,QWORD PTR [rsp+0x8]
+   0x00007ffff7fdd8de:	e9 19 00 00 00	jmp    0x7ffff7fdd8fc
+   0x00007ffff7fdd8e3:	48 8b 2c 25 c0 e2 3b 08	mov    rbp,QWORD PTR ds:0x83be2c0
+   0x00007ffff7fdd8eb:	48 83 45 38 08	add    QWORD PTR [rbp+0x38],0x8
+   0x00007ffff7fdd8f0:	48 8b 65 38	mov    rsp,QWORD PTR [rbp+0x38]
+   0x00007ffff7fdd8f4:	48 83 45 38 08	add    QWORD PTR [rbp+0x38],0x8
+   0x00007ffff7fdd8f9:	5d	pop    rbp
+   0x00007ffff7fdd8fa:	ff e5	jmp    rbp
+   0x00007ffff7fdd8fc:	41 8b 6b 30	mov    ebp,DWORD PTR [r11+0x30]
+   0x00007ffff7fdd900:	41 89 6b 10	mov    DWORD PTR [r11+0x10],ebp
+   0x00007ffff7fdd904:	4c 89 de	mov    rsi,r11
+   0x00007ffff7fdd907:	48 83 c6 20	add    rsi,0x20
+   0x00007ffff7fdd90b:	31 c0	xor    eax,eax
+   0x00007ffff7fdd90d:	48 83 c4 68	add    rsp,0x68
+   0x00007ffff7fdd911:	c3	ret    
+End of assembler dump.

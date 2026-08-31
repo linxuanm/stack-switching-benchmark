@@ -1,0 +1,428 @@
+==== begin compile: #11 ========================
+	sub rsp, 104
+	mov qword [rsp+24], rsi
+	mov qword [rsp], rdx
+	mov rdi, qword [rdx+16]
+	mov qword [rsp+80], rdi
+	mov qword [rsp+96], 0
+	mov qword [rsp+40], 0
+	mov r11, rsi
+	sub r11, 96
+	mov qword [rsp+16], r11
+	mov r10, qword [rdi+16]
+	mov r10, qword [r10+8]
+	mov r10, qword [r10+64]
+	mov qword [rsp+8], r10
+   +6 global.get[0]                       |iTS|iTS|iTS|i=0|i=0|c=0|  |
+	mov rax, qword [rsp+80]
+	mov rax, qword [rax+48]
+	mov rax, qword [rax+8]
+	mov ebx, dword [rax+32]
+   +8 local.set[3]                        |iTS|iTS|iTS|i=0|i=0|c=0|  |i@rbx|
+  +10 global.get[1]                       |iTS|iTS|iTS|i@rbx|i=0|c=0|  |
+	mov rax, qword [rsp+80]
+	mov rax, qword [rax+48]
+	mov rax, qword [rax+16]
+	mov esi, dword [rax+32]
+  +12 i32.load[align=2,offset=0]          |iTS|iTS|iTS|i@rbx|i=0|c=0|  |i@rsi|
+	mov eax, dword [r10+rsi]
+  +15 local.get[0]                        |iTS|iTS|iTS|i@rbx|i=0|c=0|  |i@rax|
+	mov esi, dword [r11+16]
+  +17 i32.const[2]                        |iTS@rsi|iTS|iTS|i@rbx|i=0|c=0|  |i@rax|i@rsi|
+  +19 i32.shl                             |iTS@rsi|iTS|iTS|i@rbx|i=0|c=0|  |i@rax|i@rsi|i=2|
+	mov rcx, rsi
+	shl ecx, 2
+  +20 i32.add                             |iTS@rsi|iTS|iTS|i@rbx|i=0|c=0|  |i@rax|i@rcx|
+popReg() in rcx
+pool[0]={rax={6}, rbx={3}, rsi={0}, rcx={1000000000}}, pool[1]={}
+	add eax, ecx
+  +21 i32.load[align=2,offset=0]          |iTS@rsi|iTS|iTS|i@rbx|i=0|c=0|  |i@rax|
+	mov ecx, dword [r10+rax]
+  +24 global.set[0]                       |iTS@rsi|iTS|iTS|i@rbx|i=0|c=0|  |i@rcx|
+popReg() in rcx
+pool[0]={rax={1000000000}, rbx={3}, rsi={0}, rcx={1000000000}}, pool[1]={}
+	mov rax, qword [rsp+80]
+	mov rax, qword [rax+48]
+	mov rax, qword [rax+8]
+	mov dword [rax+32], ecx
+  +26 block[[] -> [i32 (ref cont #4)]]    |iTS@rsi|iTS|iTS|i@rbx|i=0|c=0|  |
+  +28 block[]                             |iTS@rsi|iTS|iTS|i@rbx|i=0|c=0|  |
+  +30 local.get[1]                        |iTS@rsi|iTS|iTS|i@rbx|i=0|c=0|  |
+	mov eax, dword [r11+48]
+  +32 local.get[0]                        |iTS@rsi|iTS@rax|iTS|i@rbx|i=0|c=0|  |i@rax|
+  +34 table.get[table=0]                  |iTS@rsi|iTS@rax|iTS|i@rbx|i=0|c=0|  |i@rax|i@rsi|
+    save all slots
+    addMove slot=3 iTS| <- slot=3 i@rbx|
+    addMove slot=4 iTS=0| <- slot=4 i=0|
+    addMove slot=5 cTS=0| <- slot=5 c=0|
+    addMove slot=6 iTS| <- slot=6 i@rax|
+    addMove slot=7 iTS| <- slot=7 i@rsi|
+    emitMove[I32] slot=3 <- rbx
+    emitMove[I32] slot=6 <- rax
+    emitMove[I32] slot=7 <- rsi
+	mov dword [r11+96], 127
+	mov dword [r11+128], 127
+	mov dword [r11+160], 104
+	mov dword [r11+192], 127
+	mov dword [r11+224], 127
+	mov dword [r11+112], ebx
+	mov dword [r11+208], eax
+	mov dword [r11+240], esi
+	mov dword [r11+144], 0
+	mov qword [r11+176], 0
+	mov qword [r11+184], 0
+	mov rsi, r11
+	add rsi, 256
+	mov qword [rsp+24], rsi
+	mov rbp, qword [0x083BE2C0]
+	mov qword [rbp+48], rsi
+	mov rsi, qword [0x083BE2C0]
+	mov qword [rsi+56], rsp
+	sub qword [rsi+56], 8
+	mov rdx, qword [rsp+80]
+	xor ecx, ecx
+	mov ebp, 136543912
+	call rbp
+	mov rbp, qword [0x083BE2C0]
+	add qword [rbp+56], 8
+	mov r11, qword [rsp+16]
+	mov r10, qword [rsp+8]
+  +36 br_on_null[depth=0]                 |iTS|iTS|iTS|iTS|iTS=0|cTS=0|  |iTS|cTS|
+    xfer -> sp=6 vals=0 merges=0
+    addMove slot=0 iTS| <- slot=0 iTS|
+    addMove slot=1 iTS| <- slot=1 iTS|
+    addMove slot=2 iTS| <- slot=2 iTS|
+    addMove slot=3 iTS| <- slot=3 iTS|
+    addMove slot=4 iTS| <- slot=4 iTS=0|
+    addMove slot=5 cTS| <- slot=5 cTS=0|
+    merge = |iTS|iTS|iTS|iTS|iTS|cTS|  |
+    bind label (+36) -> @1351
+	cmp qword [r11+240], 0
+	jne $38
+	mov dword [r11+144], 0
+	mov qword [r11+176], 0
+	mov qword [r11+184], 0
+	jmp $-5
+  +38 resume[cont=4,1...]                 |iTS|iTS|iTS|iTS|iTS=0|cTS=0|  |iTS|cTS|
+Building handler at pc=38 inline_index=0
+    handler dest #0 recorded (handler=#0)
+    save all slots
+    restore all slots
+    restore all slots
+    bind label (+38) -> @1573
+    bind label (+38) -> @1588
+	movdqu xmm0, oword [r11+240]
+	movaps xmm1, xmm0
+	pextrq rax, xmm1, 0
+	cmp rax, 0
+	je $-5
+	pextrq rbp, xmm1, 1
+	cmp qword [rax+8], rbp
+	jne $-5
+	add qword [rax+8], 1
+	mov rsi, r11
+	add rsi, 224
+	mov ecx, 1
+	mov r8, rcx
+	imul r8, r8, 32
+	mov rbp, rax
+	mov rdx, qword [rbp+48]
+	add qword [rbp+48], r8
+	sub rsi, r8
+	cmp ecx, 0
+	je $30
+	shl ecx, 5
+	movdqu xmm2, oword [rsi+rcx-16]
+	movdqu oword [rdx+rcx-16], xmm2
+	mov bpl, byte [rsi+rcx-32]
+	mov byte [rdx+rcx-32], bpl
+	sub ecx, 32
+	jne $-27
+	mov rbx, qword [0x083BE2C0]
+	mov rsi, r11
+	add rsi, 192
+	mov qword [rsp+24], rsi
+	mov qword [rbx+48], rsi
+	mov qword [rbx+56], rsp
+	sub qword [rbx+56], 8
+	mov dword [rbx+96], 2
+	mov rbp, rax
+	mov dword [rbp+96], 4
+	mov rbp, qword [rbp+24]
+	mov qword [rbp+16], rbx
+	mov rbx, qword [rbx+56]
+	mov rbp, qword [rbp+72]
+	mov qword [rbp], rbx
+	mov dword [rax+24], 0
+	call $15
+	mov r11, qword [rsp+16]
+	mov r10, qword [rsp+8]
+	jmp $15
+	mov qword [0x083BE2C0], rax
+	mov rsp, qword [rax+56]
+	pop rbp
+	jmp rbp
+  +44 local.set[1]                        |iTS|iTS|iTS|iTS|iTS=0|cTS=0|  |iTS|
+	mov eax, dword [r11+208]
+  +46 local.get[2]                        |iTS|iT@rax|iTS|iTS|iTS=0|cTS=0|  |
+	mov ebx, dword [r11+80]
+  +48 i32.const[0]                        |iTS|iT@rax|iTS@rbx|iTS|iTS=0|cTS=0|  |i@rbx|
+  +50 i32.store[align=2,offset=0]         |iTS|iT@rax|iTS@rbx|iTS|iTS=0|cTS=0|  |i@rbx|i=0|
+	xor esi, esi
+	mov dword [r10+rbx], esi
+  +53 local.get[0]                        |iTS|iT@rax|iTS@rbx|iTS|iTS=0|cTS=0|  |
+	mov esi, dword [r11+16]
+  +55 ref.null[nocont]                    |iTS@rsi|iT@rax|iTS@rbx|iTS|iTS=0|cTS=0|  |i@rsi|
+  +57 table.set[table=0]                  |iTS@rsi|iT@rax|iTS@rbx|iTS|iTS=0|cTS=0|  |i@rsi|c=0|
+    save all slots
+    addMove slot=1 iTS| <- slot=1 iT@rax|
+    addMove slot=6 iTS| <- slot=6 i@rsi|
+    addMove slot=7 cTS=0| <- slot=7 c=0|
+    emitMove[I32] slot=1 <- rax
+    emitMove[I32] slot=6 <- rsi
+	mov dword [r11+192], 127
+	mov dword [r11+224], 104
+	mov dword [r11+48], eax
+	mov dword [r11+208], esi
+	mov qword [r11+240], 0
+	mov qword [r11+248], 0
+	mov rsi, r11
+	add rsi, 256
+	mov qword [rsp+24], rsi
+	mov rbp, qword [0x083BE2C0]
+	mov qword [rbp+48], rsi
+	mov rsi, qword [0x083BE2C0]
+	mov qword [rsi+56], rsp
+	sub qword [rsi+56], 8
+	mov rdx, qword [rsp+80]
+	xor ecx, ecx
+	mov ebp, 136544152
+	call rbp
+	mov rbp, qword [0x083BE2C0]
+	add qword [rbp+56], 8
+	mov r11, qword [rsp+16]
+	mov r10, qword [rsp+8]
+  +59 local.get[3]                        |iTS|iTS|iTS|iTS|iTS=0|cTS=0|  |
+	mov eax, dword [r11+112]
+  +61 global.set[0]                       |iTS|iTS|iTS|iTS@rax|iTS=0|cTS=0|  |i@rax|
+popReg() in rax
+pool[0]={rax={1000000000,3}, rbx={1000000000}}, pool[1]={}
+	mov rbx, qword [rsp+80]
+	mov rbx, qword [rbx+48]
+	mov rbx, qword [rbx+8]
+	mov dword [rbx+32], eax
+  +63 local.get[1]                        |iTS|iTS|iTS|iTS@rax|iTS=0|cTS=0|  |
+	mov ebx, dword [r11+48]
+  +65 return                              |iTS|iTS@rbx|iTS|iTS@rax|iTS=0|cTS=0|  |i@rbx|
+    xfer -> sp=0 vals=1 merges=1
+    addMove slot=0 iS| <- slot=6 i@rbx|
+    emitMove[I32] slot=0 <- rbx
+	mov dword [r11+16], ebx
+	jmp $-5
+  +66 end                                 |iTS|iTS@rbx|iTS|iTS@rax|iTS=0|cTS=0|  |i@rbx|
+    xfer not reachable
+    bind label (+28) -> @1778
+  +67 local.get[2]                        |iTS|iTS|iTS|iTS|iTS|cTS|  |
+	mov eax, dword [r11+80]
+  +69 i32.const[2]                        |iTS|iTS|iTS@rax|iTS|iTS|cTS|  |i@rax|
+  +71 i32.store[align=2,offset=0]         |iTS|iTS|iTS@rax|iTS|iTS|cTS|  |i@rax|i=2|
+	mov ebx, 2
+	mov dword [r10+rax], ebx
+  +74 i32.const[-1]                       |iTS|iTS|iTS@rax|iTS|iTS|cTS|  |
+  +76 return                              |iTS|iTS|iTS@rax|iTS|iTS|cTS|  |i=-1|
+    xfer -> sp=0 vals=1 merges=2
+    addMove slot=0 iS| <- slot=6 i=-1|
+	mov dword [r11+16], -1
+	jmp $-5
+  +77 end                                 |iTS|iTS|iTS@rax|iTS|iTS|cTS|  |i=-1|
+    xfer not reachable
+    bind label (+26) -> @1804
+  +78 local.set[5]                        |iTS|iTS|iTS|iTS|iTS|cTS|  |iTS|cTS|
+	movdqu xmm0, oword [r11+240]
+  +80 local.tee[4]                        |iTS|iTS|iTS|iTS|iTS|cT@xmm0|  |iTS|
+	mov eax, dword [r11+208]
+  +82 local.set[1]                        |iTS|iTS|iTS|iTS|iT@rax|cT@xmm0|  |iTS@rax|
+  +84 local.get[0]                        |iTS|iT@rax|iTS|iTS|iT@rax|cT@xmm0|  |
+	mov ebx, dword [r11+16]
+  +86 local.get[5]                        |iTS@rbx|iT@rax|iTS|iTS|iT@rax|cT@xmm0|  |i@rbx|
+  +88 table.set[table=0]                  |iTS@rbx|iT@rax|iTS|iTS|iT@rax|cT@xmm0|  |i@rbx|c@xmm0|
+    save all slots
+    addMove slot=1 iTS| <- slot=1 iT@rax|
+    addMove slot=4 iTS| <- slot=4 iT@rax|
+    addMove slot=5 cTS| <- slot=5 cT@xmm0|
+    addMove slot=6 iTS| <- slot=6 i@rbx|
+    addMove slot=7 cTS| <- slot=7 c@xmm0|
+    emitMove[I32] slot=1 <- rax
+    emitMove[I32] slot=4 <- rax
+    emitMove[REF_U64] slot=5 <- xmm0
+    emitMove[REF_U64] slot=7 <- xmm0
+    emitMove[I32] slot=6 <- rbx
+	mov dword [r11+192], 127
+	mov dword [r11+224], 104
+	mov dword [r11+48], eax
+	mov dword [r11+144], eax
+	movdqu oword [r11+176], xmm0
+	movdqu oword [r11+240], xmm0
+	mov dword [r11+208], ebx
+	mov rsi, r11
+	add rsi, 256
+	mov qword [rsp+24], rsi
+	mov rbp, qword [0x083BE2C0]
+	mov qword [rbp+48], rsi
+	mov rsi, qword [0x083BE2C0]
+	mov qword [rsi+56], rsp
+	sub qword [rsi+56], 8
+	mov rdx, qword [rsp+80]
+	xor ecx, ecx
+	mov ebp, 136544152
+	call rbp
+	mov rbp, qword [0x083BE2C0]
+	add qword [rbp+56], 8
+	mov r11, qword [rsp+16]
+	mov r10, qword [rsp+8]
+  +90 local.get[2]                        |iTS|iTS|iTS|iTS|iTS|cTS|  |
+	mov eax, dword [r11+80]
+  +92 i32.const[1]                        |iTS|iTS|iTS@rax|iTS|iTS|cTS|  |i@rax|
+  +94 i32.store[align=2,offset=0]         |iTS|iTS|iTS@rax|iTS|iTS|cTS|  |i@rax|i=1|
+	mov ebx, 1
+	mov dword [r10+rax], ebx
+  +97 global.get[1]                       |iTS|iTS|iTS@rax|iTS|iTS|cTS|  |
+	mov rbx, qword [rsp+80]
+	mov rbx, qword [rbx+48]
+	mov rbx, qword [rbx+16]
+	mov esi, dword [rbx+32]
+  +99 i32.load[align=2,offset=0]          |iTS|iTS|iTS@rax|iTS|iTS|cTS|  |i@rsi|
+	mov ebx, dword [r10+rsi]
+ +102 local.get[0]                        |iTS|iTS|iTS@rax|iTS|iTS|cTS|  |i@rbx|
+	mov esi, dword [r11+16]
+ +104 i32.const[2]                        |iTS@rsi|iTS|iTS@rax|iTS|iTS|cTS|  |i@rbx|i@rsi|
+ +106 i32.shl                             |iTS@rsi|iTS|iTS@rax|iTS|iTS|cTS|  |i@rbx|i@rsi|i=2|
+	mov rcx, rsi
+	shl ecx, 2
+ +107 i32.add                             |iTS@rsi|iTS|iTS@rax|iTS|iTS|cTS|  |i@rbx|i@rcx|
+popReg() in rcx
+pool[0]={rax={2}, rbx={6}, rsi={0}, rcx={1000000000}}, pool[1]={}
+	add ebx, ecx
+ +108 global.get[0]                       |iTS@rsi|iTS|iTS@rax|iTS|iTS|cTS|  |i@rbx|
+	mov rcx, qword [rsp+80]
+	mov rcx, qword [rcx+48]
+	mov rcx, qword [rcx+8]
+	mov edx, dword [rcx+32]
+ +110 i32.store[align=2,offset=0]         |iTS@rsi|iTS|iTS@rax|iTS|iTS|cTS|  |i@rbx|i@rdx|
+popReg() in rdx
+pool[0]={rax={2}, rbx={6}, rsi={0}, rdx={1000000000}}, pool[1]={}
+	mov dword [r10+rbx], edx
+ +113 local.get[3]                        |iTS@rsi|iTS|iTS@rax|iTS|iTS|cTS|  |
+	mov ebx, dword [r11+112]
+ +115 global.set[0]                       |iTS@rsi|iTS|iTS@rax|iTS@rbx|iTS|cTS|  |i@rbx|
+popReg() in rbx
+pool[0]={rax={2}, rbx={1000000000,3}, rsi={0}, rcx={1000000000}}, pool[1]={}
+	mov rcx, qword [rsp+80]
+	mov rcx, qword [rcx+48]
+	mov rcx, qword [rcx+8]
+	mov dword [rcx+32], ebx
+ +117 local.get[1]                        |iTS@rsi|iTS|iTS@rax|iTS@rbx|iTS|cTS|  |
+	mov ecx, dword [r11+48]
+ +119 end                                 |iTS@rsi|iTS@rcx|iTS@rax|iTS@rbx|iTS|cTS|  |i@rcx|
+    xfer -> sp=0 vals=1 merges=2
+    addMove slot=0 iS| <- slot=6 i@rcx|
+    emitMove[I32] slot=0 <- rcx
+    bind label (+120) -> @2056
+    bind label (+120) -> @2056
+	mov dword [r11+16], ecx
+	mov rsi, r11
+	add rsi, 32
+	xor eax, eax
+	add rsp, 104
+	ret 
+    bind label (+38) -> @2070
+    bind label (+38) -> @2085
+    bind label (+38) -> @2100
+  handler stub #0:
+    stub offset=+1126
+    end of func=false
+==== begin compile: #12 ========================
+	mov dword [rsp+88], 38
+	mov ebp, 138236782
+	jmp rbp
+	mov dword [rsp+88], 38
+	mov ebp, 138237118
+	jmp rbp
+	mov r11, qword [rsp+16]
+	mov r10, qword [rsp+8]
+	jmp $-311
+	sub rsp, 104
+	mov qword [rsp+24], rsi
+	mov qword [rsp], rdx
+	mov rdi, qword [rdx+16]
+	mov qword [rsp+80], rdi
+	mov qword [rsp+96], 0
+	mov qword [rsp+40], 0
+	mov r11, rsi
+	sub r11, 32
+	mov qword [rsp+16], r11
+	mov r10, qword [rdi+16]
+	mov r10, qword [r10+8]
+	mov r10, qword [r10+64]
+	mov qword [rsp+8], r10
+   +1 local.get[0]                        |iTS|  |
+	mov eax, dword [r11+16]
+   +3 suspend[tag=0]                      |iTS@rax|  |i@rax|
+    save all slots
+    addMove slot=1 iTS| <- slot=1 i@rax|
+    emitMove[I32] slot=1 <- rax
+    restore all slots
+    bind label (+3) -> @2275
+    bind label (+3) -> @2300
+	mov dword [r11+32], 127
+	mov dword [r11+48], eax
+	mov rsi, r11
+	add rsi, 64
+	mov qword [rsp+24], rsi
+	mov rbp, qword [0x083BE2C0]
+	mov qword [rbp+48], rsi
+	mov rsi, qword [0x083BE2C0]
+	mov qword [rsi+56], rsp
+	sub qword [rsi+56], 8
+	mov rdx, qword [rsp+80]
+	xor ecx, ecx
+	mov ebp, 136580544
+	call rbp
+	call $15
+	mov r11, qword [rsp+16]
+	mov r10, qword [rsp+8]
+	jmp $25
+	mov rbp, qword [0x083BE2C0]
+	add qword [rbp+56], 8
+	mov rsp, qword [rbp+56]
+	add qword [rbp+56], 8
+	pop rbp
+	jmp rbp
+   +5 end                                 |iTS|  |iTS|
+    xfer -> sp=0 vals=1 merges=1
+    addMove slot=0 iS| <- slot=1 iTS|
+    emitMove[I32] slot=0 <- slot=1
+    bind label (+6) -> @2308
+    bind label (+6) -> @2308
+	mov ebp, dword [r11+48]
+	mov dword [r11+16], ebp
+	mov rsi, r11
+	add rsi, 32
+	xor eax, eax
+	add rsp, 104
+	ret 
+==== begin compile: #13 ========================
+	sub rsp, 104
+	mov qword [rsp+24], rsi
+	mov qword [rsp], rdx
+	mov rdi, qword [rdx+16]
+	mov qword [rsp+80], rdi
+	mov qword [rsp+96], 0
+	mov qword [rsp+40], 0
+	mov r11, rsi
+	mov qword [rsp+16], r11
+	mov r10, qword [rdi+16]
+
+==== func[N].target_code lines from the same run (ASLR disabled) ====
+func[11].target_code: break *0x00007FFFF7FDD3CE disass 0x00007FFFF7FDD3CE, 0x00007FFFF7FDD843
+func[12].target_code: break *0x00007FFFF7FDD843 disass 0x00007FFFF7FDD843, 0x00007FFFF7FDD912
