@@ -1,0 +1,59 @@
+	code start:                0x083BF000
+	host call stub:     break *0x083C64D4
+	v3->int entry:      break *0x083C651F
+	spc->int entry:     break *0x083C653A
+	int->int entry:     break *0x083C6598
+	int suspend entry:  break *0x083C6550
+	fast dispatch:             0x083BF100
+	probed dispatch:           0x083BF500
+	oob memory:         break *0x083D4DAF
+	divide by zero:     break *0x083D4EB4
+	stack overflow:     break *0x083D4F1E
+	whamm reentry:      break *0x083D1296
+	code end:                  0x083D566C
+	rdtsc:                 0x083D4F40 - 0x083D4F4A
+	stack-overflow:        0x083D4F4A - 0x083D4F61
+	stack-unwind:          0x083D4F61 - 0x083D4F73
+	stack-enter-func:      0x083D4F73 - 0x083D4FDB
+	stack-return-parent:   0x083D4FDB - 0x083D5081
+	v3-stack-resume:       0x083D5081 - 0x083D509C
+	spc-inlined-frame:     0x083D509C - 0x083D509E
+	spc-trap:              0x083D509E - 0x083D55DE
+	spc-tierup-compile:    0x083D55DE - 0x083D5621
+	spc-lazy-compile:      0x083D5621 - 0x083D565F
+	v3-spc-entry:          0x083D565F - 0x083D566C
+func[0].target_code: break *0x00007FFFF7FDD000 disass 0x00007FFFF7FDD000, 0x00007FFFF7FDD000
+func[1].target_code: break *0x00007FFFF7FDD000 disass 0x00007FFFF7FDD000, 0x00007FFFF7FDD000
+func[2].target_code: break *0x00007FFFF7FDD000 disass 0x00007FFFF7FDD000, 0x00007FFFF7FDD000
+func[3].target_code: break *0x00007FFFF7FDD000 disass 0x00007FFFF7FDD000, 0x00007FFFF7FDD0C5
+func[4].target_code: break *0x00007FFFF7FDD0C5 disass 0x00007FFFF7FDD0C5, 0x00007FFFF7FDD128
+func[5].target_code: break *0x00007FFFF7FDD128 disass 0x00007FFFF7FDD128, 0x00007FFFF7FDD241
+func[6].target_code: break *0x00007FFFF7FDD241 disass 0x00007FFFF7FDD241, 0x00007FFFF7FDD3CE
+func[7].target_code: break *0x00007FFFF7FDD3CE disass 0x00007FFFF7FDD3CE, 0x00007FFFF7FDD843
+func[8].target_code: break *0x00007FFFF7FDD843 disass 0x00007FFFF7FDD843, 0x00007FFFF7FDD912
+func[9].target_code: break *0x00007FFFF7FDD912 disass 0x00007FFFF7FDD912, 0x00007FFFF7FDE83C
+func[10].target_code: break *0x00007FFFF7FDE83C disass 0x00007FFFF7FDE83C, 0x00007FFFF7FDF045
+func[11].target_code: break *0x00007FFFF7FDF045 disass 0x00007FFFF7FDF045, 0x00007FFFF7FDF0E8
+func[12].target_code: break *0x00007FFFF7FDF0E8 disass 0x00007FFFF7FDF0E8, 0x00007FFFF7FDF1B0
+func[13].target_code: break *0x00007FFFF7FDF1B0 disass 0x00007FFFF7FDF1B0, 0x00007FFFF7FDF55B
+func[14].target_code: break *0x00007FFFF7FDF55B disass 0x00007FFFF7FDF55B, 0x00007FFFF7FDF766
+func[15].target_code: break *0x00007FFFF7FDF766 disass 0x00007FFFF7FDF766, 0x00007FFFF7FDFAA7
+func[16].target_code: break *0x00007FFFF7FDFAA7 disass 0x00007FFFF7FDFAA7, 0x00007FFFF7FE2D89
+func[17].target_code: break *0x00007FFFF7FE2D89 disass 0x00007FFFF7FE2D89, 0x00007FFFF7FE3B2D
+func[18].target_code: break *0x00007FFFF7FE3B2D disass 0x00007FFFF7FE3B2D, 0x00007FFFF7FE495D
+func[19].target_code: break *0x00007FFFF7FE495D disass 0x00007FFFF7FE495D, 0x00007FFFF7FE5572
+func[20].target_code: break *0x00007FFFF7FE5572 disass 0x00007FFFF7FE5572, 0x00007FFFF7FE56F4
+func[21].target_code: break *0x00007FFFF7FE56F4 disass 0x00007FFFF7FE56F4, 0x00007FFFF7FE5CE2
+func[22].target_code: break *0x00007FFFF7FE5CE2 disass 0x00007FFFF7FE5CE2, 0x00007FFFF7FE5DC9
+func[23].target_code: break *0x00007FFFF7FE5DC9 disass 0x00007FFFF7FE5DC9, 0x00007FFFF7FE5FAF
+func[24].target_code: break *0x00007FFFF7FE5FAF disass 0x00007FFFF7FE5FAF, 0x00007FFFF7FE6441
+func[25].target_code: break *0x00007FFFF7FE6441 disass 0x00007FFFF7FE6441, 0x00007FFFF7FE6608
+func[26].target_code: break *0x00007FFFF7FE6608 disass 0x00007FFFF7FE6608, 0x00007FFFF7FE66CD
+func[27].target_code: break *0x00007FFFF7FE66CD disass 0x00007FFFF7FE66CD, 0x00007FFFF7FE6C4F
+func[28].target_code: break *0x00007FFFF7FE6C4F disass 0x00007FFFF7FE6C4F, 0x00007FFFF7FE6EC5
+func[29].target_code: break *0x00007FFFF7FE6EC5 disass 0x00007FFFF7FE6EC5, 0x00007FFFF7FE7097
+func[30].target_code: break *0x00007FFFF7FE7097 disass 0x00007FFFF7FE7097, 0x00007FFFF7FF2418
+func[31].target_code: break *0x00007FFFF7FF2418 disass 0x00007FFFF7FF2418, 0x00007FFFF7FF2D53
+func[32].target_code: break *0x00007FFFF7FF2D53 disass 0x00007FFFF7FF2D53, 0x00007FFFF7FF307A
+func[33].target_code: break *0x00007FFFF7FF307A disass 0x00007FFFF7FF307A, 0x00007FFFF7FF3934
+func[34].target_code: break *0x00007FFFF7FF3934 disass 0x00007FFFF7FF3934, 0x00007FFFF7FF3D22

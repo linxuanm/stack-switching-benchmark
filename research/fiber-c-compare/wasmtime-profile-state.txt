@@ -1,0 +1,3 @@
+    69.93%  wasmtime  [JIT] tid 52831    [.] wasm[0]::function[7]
+    21.27%  wasmtime  [JIT] tid 52831    [.] wasm[0]::function[15]
+     8.07%  wasmtime  [JIT] tid 52831    [.] wasm[0]::function[9]

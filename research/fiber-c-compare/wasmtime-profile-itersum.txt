@@ -1,0 +1,10 @@
+    68.75%  wasmtime  [JIT] tid 52808    [.] wasm[0]::function[11]
+    13.75%  wasmtime  [JIT] tid 52808    [.] wasm[0]::function[19]
+     5.00%  wasmtime  [JIT] tid 52808    [.] wasm[0]::function[13]
+     3.75%  wasmtime  [kernel.kallsyms]  [k] _raw_spin_unlock_irqrestore
+     2.50%  wasmtime  [kernel.kallsyms]  [k] clear_page_erms
+     1.25%  wasmtime  [kernel.kallsyms]  [k] __filemap_add_folio
+     1.25%  wasmtime  [kernel.kallsyms]  [k] __raw_callee_save___pv_queued_spin_unlock
+     1.25%  wasmtime  [kernel.kallsyms]  [k] ext4_mpage_readpages
+     1.25%  wasmtime  [kernel.kallsyms]  [k] finish_task_switch.isra.0
+     1.25%  wasmtime  libc.so.6          [.] pthread_create@GLIBC_2.2.5

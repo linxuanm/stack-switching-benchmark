@@ -1,0 +1,21 @@
+total samples: 469
+ 24.95%     117  jit: wasm func[11]
+  5.97%      28  jit: wasm func[19]
+  5.76%      27  X86_64Stack.pop
+  4.90%      23  X86_64SpcModuleCode.lookupPc
+  4.48%      21  X86_64FrameHandle.Spc.redirectToHandlerStub
+  4.26%      20  jit: wasm func[13]
+  3.62%      17  X86_64Runtime.runtime_handle_suspend
+  3.62%      17  kernel: do_user_addr_fault
+  3.62%      17  X86_64Stack.storeValue
+  3.20%      15  Vector<(int, List<FuncLoc>)>.[]
+  2.77%      13  kernel: _raw_spin_lock
+  2.77%      13  X86_64Stack.popN
+  2.56%      12  FuncDecl.findHandler
+  1.71%       8  .alloc
+  1.71%       8  X86_64SpcModuleCode.lookupTopPc
+  1.49%       7  RiRuntime.findUserCode
+  1.49%       7  X86_64FrameHandle.computePcFromCode
+  1.07%       5  X86_64Stack.peekTag
+  1.07%       5  Runtime.TABLE_SET
+  1.07%       5  X86_64Stack.popb32

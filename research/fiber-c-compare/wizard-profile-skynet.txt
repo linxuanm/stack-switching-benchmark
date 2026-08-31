@@ -1,0 +1,21 @@
+total samples: 503
+  9.34%      47  jit: wasm func[15]
+  8.95%      45  jit: wasm func[7]
+  8.15%      41  X86_64Stack.pop
+  5.96%      30  X86_64Stack.storeValue
+  5.17%      26  kernel: do_user_addr_fault
+  3.98%      20  pregen: stack-return-parent
+  3.98%      20  kernel: _raw_spin_lock
+  3.78%      19  jit: wasm func[5]
+  3.18%      16  X86_64Stack.popN
+  2.58%      13  Runtime.CONT_BIND
+  2.58%      13  Vector<(int, List<FuncLoc>)>.[]
+  2.39%      12  X86_64SpcModuleCode.lookupPc
+  2.19%      11  kernel: clear_page_erms
+  1.99%      10  .alloc
+  1.99%      10  jit: wasm func[6]
+  1.79%       9  jit: wasm func[11]
+  1.79%       9  jit: wasm func[10]
+  1.79%       9  X86_64FrameHandle.Spc.redirectToHandlerStub
+  1.59%       8  X86_64Runtime.runtime_handle_suspend
+  1.39%       7  Runtime.CONT_NEW

@@ -1,0 +1,20 @@
+    38.46%  wasmtime  [JIT] tid 52877    [.] wasm[0]::function[11]
+    28.21%  wasmtime  [JIT] tid 52877    [.] wasm[0]::function[19]
+     5.13%  wasmtime  [kernel.kallsyms]  [k] clear_page_erms
+     5.13%  wasmtime  [kernel.kallsyms]  [k] hyperv_flush_tlb_multi
+     2.56%  wasmtime  [kernel.kallsyms]  [k] do_user_addr_fault
+     2.56%  wasmtime  libc.so.6          [.] malloc
+     1.28%  wasmtime  [JIT] tid 52877    [.] wasm[0]::function[14]
+     1.28%  wasmtime  [JIT] tid 52877    [.] wasm[0]::function[20]
+     1.28%  wasmtime  [kernel.kallsyms]  [k] __handle_mm_fault
+     1.28%  wasmtime  [kernel.kallsyms]  [k] _raw_spin_lock
+     1.28%  wasmtime  [kernel.kallsyms]  [k] commit_merge
+     1.28%  wasmtime  [kernel.kallsyms]  [k] folio_remove_rmap_ptes
+     1.28%  wasmtime  [kernel.kallsyms]  [k] init_multi_vma_prep
+     1.28%  wasmtime  [kernel.kallsyms]  [k] kmem_cache_alloc_noprof
+     1.28%  wasmtime  [kernel.kallsyms]  [k] mas_walk
+     1.28%  wasmtime  [kernel.kallsyms]  [k] mas_wr_store_entry
+     1.28%  wasmtime  [kernel.kallsyms]  [k] perf_event_mmap
+     1.28%  wasmtime  libc.so.6          [.] __memmove_avx_unaligned_erms
+     1.28%  wasmtime  wasmtime           [.] <wasmtime::runtime::vm::cow::MemoryImageSlot>::set_heap_limit
+     1.28%  wasmtime  wasmtime           [.] wasmtime::runtime::vm::libcalls::raw::cont_new
