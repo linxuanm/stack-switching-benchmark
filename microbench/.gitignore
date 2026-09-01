@@ -1,3 +1,4 @@
 results/
 wasm/
 build/
+__pycache__/

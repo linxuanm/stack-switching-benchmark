@@ -2,6 +2,8 @@
 # build-all.sh — the one place that builds everything in this repo.
 #
 #   git clone --recurse-submodules <repo> && cd <repo> && ./build-all.sh
+#   ./run-wizard.sh --repeat 5; ./run-wasmtime.sh --repeat 5   # then time the suites ...
+#   ./runtime-compare.sh                                      # ... or profile both engines
 #
 # Steps (in order; each can be skipped):
 #   submodules  git submodule update --init for wizard-engine, wasmtime, fiber-c, benches

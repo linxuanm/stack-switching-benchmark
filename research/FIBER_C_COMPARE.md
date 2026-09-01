@@ -74,6 +74,10 @@ Notes on the rows:
 - **Sample counts**: state 4 862, treesum 6 059, c10m 7 125; itersum 930, sieve 469, skynet 503 —
   the last three carry ±1–2 pp per row.
 - **Syscall profile**: `strace -c` per engine/benchmark; **fault/RSS**: `/usr/bin/time`.
+- **Reproduce**: `./runtime-compare.sh` (after `./build-all.sh`) re-runs this method on both
+  engines and regenerates the §3 and §4 tables plus the §5 JIT-only comparison as
+  `microbench/results/runtime-compare-<stamp>/REPORT.md`; the cluster definitions live in
+  `microbench/profile-report.py`.
 
 ## 3. Where Wizard's time goes
 

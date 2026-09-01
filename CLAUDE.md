@@ -115,6 +115,14 @@ correct; measure on Wizard, wasmtime, or d8.
 
 ## Running things
 
+The benchmark pipeline, from a fresh clone: `./build-all.sh` (engines + every wasm module;
+see its header for the tool locations it needs), then `./run-wizard.sh --repeat 5` /
+`./run-wasmtime.sh --repeat 5` for timings (shared driver `bench-common.sh`, wasm dir
+`microbench/wasm/`), and `./runtime-compare.sh` for the perf-based "where the time goes"
+tables of `research/FIBER_C_COMPARE.md`. Details in `microbench/README.md`.
+
+Single OCaml programs on the reference interpreter:
+
 ```bash
 eval $(opam env)
 ./tools/ocaml-refrun.sh benches/multicore/multicore-effects/effect_throughput_perform.ml 200

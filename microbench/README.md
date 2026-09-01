@@ -99,3 +99,25 @@ the gap, see `research/COMPILER_DIFF.md`.
 The scripts exit 0 only if every benchmark passed, so the two expected failures above make
 the exit status 1 — deliberate (usable as a regression signal), but remember it when chaining
 with `&&`.
+
+## Profiling: `runtime-compare.sh`
+
+`./runtime-compare.sh` (after `./build-all.sh`) profiles both engines on the six fiber-c
+benchmarks with `perf` and prints the "where the time goes" tables of
+`research/FIBER_C_COMPARE.md` §3–4 in one run: cluster shares per engine and benchmark, top
+functions, and the JIT-only comparison (wall × JIT share). The report and the raw data land in
+`microbench/results/runtime-compare-<stamp>/` (`REPORT.md`, `*.perf.data`, `*.samples`,
+`*.symbols.txt`, the Wizard code maps `wizard-*.map`, and each engine's output).
+
+- Options: `--only pat`, `--skip pat`, `--freq HZ` (default 4999), `--timeout SECS`,
+  `--out DIR`, `--list`. Engine overrides as for `run-*.sh`, plus `PERF=` for the perf binary.
+- Needs `perf` (sampling uses the `cpu-clock` software event, so it works without a PMU —
+  WSL2 included), `setarch`, `python3`. On WSL2 `/usr/bin/perf` rejects the Microsoft kernel;
+  the script falls back to any `/usr/lib/linux-tools-*/perf`. Kernel rows need
+  `kernel.perf_event_paranoid ≤ 1`; above that it samples user space only and says so.
+- Method and the cluster definitions: the header of `runtime-compare.sh` and
+  `microbench/profile-report.py` (which supersedes `research/fiber-c-compare/bucket-samples.py`).
+- Each benchmark runs twice per engine — a plain run for wall time and exit status, then the
+  profiled run (perf's own startup would distort the short ones). About two minutes on this
+  host. `c10m`/`skynet` fail on Wasmtime exactly as in the harness; their profile covers the run
+  up to the ENOMEM.
