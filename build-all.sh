@@ -2,7 +2,8 @@
 # build-all.sh — the one place that builds everything: the dependencies under dependencies/ and
 # the benchmark modules under microbench/wasm/.
 #
-#   git clone --recurse-submodules <repo> && cd <repo> && ./build-all.sh
+#   git clone <repo> && cd <repo> && ./build-all.sh   # the first step fetches the submodules
+#   (--recurse-submodules also works but pulls the engines' own third-party submodules too)
 #   ./run-wizard.sh --repeat 5; ./run-wasmtime.sh --repeat 5   # then time the suites ...
 #   ./runtime-compare.sh                                      # ... or profile both engines
 #
@@ -95,8 +96,13 @@ run_step() { # name  fn
 }
 
 step_submodules() {
-  git submodule update --init dependencies/virgil dependencies/wizard-engine dependencies/wasmtime \
-    dependencies/binaryen dependencies/specfx dependencies/js_of_ocaml benchmark/fiber-c benchmark/benches
+  local mods=(dependencies/virgil dependencies/wizard-engine dependencies/wasmtime
+              dependencies/binaryen dependencies/specfx dependencies/js_of_ocaml
+              benchmark/fiber-c benchmark/benches)
+  # Nested submodules (binaryen's, wasmtime's third_party) are deliberately not initialised.
+  # A transient network failure is the common failure here; a retry resumes where it stopped.
+  git submodule update --init "${mods[@]}" \
+    || { echo "submodule fetch failed; retrying once"; git submodule update --init "${mods[@]}"; }
   # benchmark/macro-benches and benchmark/angstrom are not built by anything here:
   #   git submodule update --init benchmark/macro-benches benchmark/angstrom
 }
@@ -171,6 +177,10 @@ step_ocaml() {
   command -v opam >/dev/null || { echo "opam not found (https://opam.ocaml.org/doc/Install.html)"; return 1; }
   opam switch list >/dev/null 2>&1 || { echo "opam is not initialised — run: opam init --bare"; return 1; }
   if [ ! -d "$OCAML_SWITCH/_opam" ]; then
+    # a registration left behind by a deleted checkout blocks re-creation at the same path
+    if opam switch list --short 2>/dev/null | grep -qx "$OCAML_SWITCH"; then
+      opam switch remove "$OCAML_SWITCH" --yes || true
+    fi
     echo "creating opam switch $OCAML_SWITCH with OCaml $OCAML_VERSION (compiles OCaml; several minutes)"
     mkdir -p "$OCAML_SWITCH"
     opam switch create "$OCAML_SWITCH" "ocaml-base-compiler.$OCAML_VERSION" --no-install --yes || return 1
