@@ -7,9 +7,11 @@ NAME=$1
 REPO="${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 FIBER=$REPO/fiber-c
 OUT=${OUT:-$(dirname "$0")/fiber-c-build}
-WASI_SDK=${WASI_SDK:-$HOME/workspace/benchfx/tools/wasi-sdk/wasi-sdk-22.0}
-BINARYEN=${BINARYEN:-$HOME/dev_path/binaryen}
-WASM_INTERP=${WASM_INTERP:-$HOME/.opam/default/bin/wasm}
+# shellcheck disable=SC1091
+[ -f "$REPO/build.env" ] && . "$REPO/build.env"
+: "${WASI_SDK:?WASI_SDK is not set (wasi-sdk 22 install root; environment or $REPO/build.env)}"
+: "${BINARYEN:?BINARYEN is not set (binaryen install root; environment or $REPO/build.env)}"
+: "${WASM_INTERP:?WASM_INTERP is not set (WasmFX reference interpreter binary; environment or $REPO/build.env)}"
 WASICC=$WASI_SDK/bin/clang
 SHADOW_STACK_FLAG=-DFIBER_WASMFX_PRESERVE_SHADOW_STACK        # make.config: WASMFX_PRESERVE_SHADOW_STACK=1
 CAP=-DWASMFX_CONT_TABLE_INITIAL_CAPACITY=1024                 # make.config default

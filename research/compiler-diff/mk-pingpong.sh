@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 # mk.sh <N>: bake N into pingpong.wat, assemble with the reference interpreter, patch switch opcodes 0xE5->0xE6
 set -euo pipefail
+HERE="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck disable=SC1091
+[ -f "$HERE/../../build.env" ] && . "$HERE/../../build.env"
+: "${WASM_INTERP:?WASM_INTERP is not set (WasmFX reference interpreter binary; environment or <repo>/build.env)}"
 N=$1; OUT=pingpong_$N
 sed -e 's/(func \$main (export "main") (param \$n i32) (result i32)/(func $run (param $n i32) (result i32)/' \
     -e "s/(elem declare func \$producer \$consumer)/(elem declare func \$producer \$consumer)\n  (func (export \"main\") (result i32) (call \$run (i32.const $N)))/" pingpong.wat > $OUT.wat
-/home/linxuanm/.opam/default/bin/wasm -d -i $OUT.wat -o $OUT.old.wasm
+"$WASM_INTERP" -d -i $OUT.wat -o $OUT.old.wasm
 python3 - "$OUT" <<'PY'
 import sys
 name=sys.argv[1]

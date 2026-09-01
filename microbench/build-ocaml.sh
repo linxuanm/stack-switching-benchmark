@@ -11,12 +11,18 @@
 # with WASI. Wizard runs these with --ext:all; upstream Wasmtime refuses them at
 # compile time ("Stack switching feature not compatible with GC, yet").
 #
-# Requires: the opam switch (eval $(opam env)), the wasm_of_ocaml master build
-# (see CLAUDE.md "Toolchain on this machine"), binaryen on PATH for wasm_of_ocaml.
+# Requires: the opam switch (eval $(opam env)); WASM_OF_OCAML (wasm_of_ocaml.exe from a
+# js_of_ocaml master build, see CLAUDE.md) and BINARYEN (install root; wasm_of_ocaml runs
+# wasm-opt/wasm-merge) from the environment or <repo>/build.env — nothing is guessed.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-WOO="${WASM_OF_OCAML:-$HOME/workspace/js_of_ocaml/_build/default/compiler/bin-wasm_of_ocaml/wasm_of_ocaml.exe}"
-BINARYEN_BIN="${BINARYEN_BIN:-$HOME/dev_path/binaryen/bin}"
+# shellcheck disable=SC1091
+[ -f "$ROOT/build.env" ] && . "$ROOT/build.env"
+WOO="${WASM_OF_OCAML:-}"
+BINARYEN_BIN="${BINARYEN_BIN:-${BINARYEN:+$BINARYEN/bin}}"
+[ -n "$WOO" ] || { echo "WASM_OF_OCAML is not set (wasm_of_ocaml.exe from a js_of_ocaml master build; environment or $ROOT/build.env)" >&2; exit 1; }
+[ -n "$BINARYEN_BIN" ] || { echo "BINARYEN is not set (binaryen install root; wasm_of_ocaml needs wasm-opt/wasm-merge; environment or $ROOT/build.env)" >&2; exit 1; }
+[ -x "$BINARYEN_BIN/wasm-opt" ] || { echo "binaryen wasm-opt not found at $BINARYEN_BIN/wasm-opt" >&2; exit 1; }
 BENCH="$ROOT/benches/multicore/multicore-effects"
 OUT="$ROOT/microbench/wasm"
 TMP="$(mktemp -d)"

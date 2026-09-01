@@ -18,18 +18,39 @@
 #   smoke       one tiny run per engine to confirm the setup works
 #
 # Usage: ./build-all.sh [--skip step[,step...]] [--only step[,step...]] [--list]
-# Tool locations (defaults match CLAUDE.md "Toolchain on this machine"; override via env):
-#   V3C, RUST_TOOLCHAIN (1.98.0), WASI_SDK, BINARYEN, WASM_INTERP, WASM_OF_OCAML
+# Tool locations are NOT guessed. Set them in the environment or in ./build.env (gitignored,
+# sourced if present; template: build.env.example). A step whose tool is unset stops and says so.
+#   WASI_SDK       wasi-sdk 22 install root (bin/clang, share/wasi-sysroot)          [fiberc]
+#   BINARYEN       binaryen install root (bin/wasm-merge, bin/wasm-opt; >= v124,
+#                  built with --enable-stack-switching support)                      [fiberc, ocaml]
+#   WASM_INTERP    the WasmFX reference interpreter binary (specfx/interpreter/wasm)  [fiberc, pingpong]
+#   WASM_OF_OCAML  wasm_of_ocaml.exe from a js_of_ocaml master build                 [ocaml]
+#   V3C            Virgil compiler (default: v3c on PATH)                             [wizard]
+#   RUST_TOOLCHAIN rustup toolchain for wasmtime (default 1.98.0, installed if absent) [wasmtime]
+if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi   # `sh <script>` -> re-run under bash
 set -u
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
+# shellcheck disable=SC1091
+[ -f "$ROOT/build.env" ] && . "$ROOT/build.env"
 RUST_TOOLCHAIN="${RUST_TOOLCHAIN:-1.98.0}"
-WASI_SDK="${WASI_SDK:-$HOME/workspace/benchfx/tools/wasi-sdk/wasi-sdk-22.0}"
-BINARYEN="${BINARYEN:-$HOME/dev_path/binaryen}"
-WASM_INTERP="${WASM_INTERP:-$HOME/.opam/default/bin/wasm}"
-WASM_OF_OCAML="${WASM_OF_OCAML:-$HOME/workspace/js_of_ocaml/_build/default/compiler/bin-wasm_of_ocaml/wasm_of_ocaml.exe}"
+WASI_SDK="${WASI_SDK:-}"; BINARYEN="${BINARYEN:-}"; WASM_INTERP="${WASM_INTERP:-}"; WASM_OF_OCAML="${WASM_OF_OCAML:-}"
 export WASI_SDK BINARYEN WASM_INTERP WASM_OF_OCAML
+
+# need_tool VAR "what it is" [path-under-it-that-must-exist]: fail with a clear message, never guess
+need_tool() {
+  local var="$1" what="$2" sub="${3:-}" val
+  val="${!var}"
+  if [ -z "$val" ]; then
+    echo "$var is not set — $what. Set it in the environment or in $ROOT/build.env (template: build.env.example)."
+    return 1
+  fi
+  if [ ! -e "$val$sub" ]; then
+    echo "$var=$val, but $val$sub does not exist — $what."
+    return 1
+  fi
+}
 
 STEPS=(submodules wizard wasmtime fiberc pingpong ocaml smoke)
 SKIP=""; ONLY=""
@@ -54,6 +75,8 @@ BUILD="$ROOT/microbench/build"       # intermediates (gitignored)
 WASM_OUT="$ROOT/microbench/wasm"     # what run-wizard.sh / run-wasmtime.sh consume
 mkdir -p "$BUILD" "$WASM_OUT"
 LOG="$BUILD/build-all.log"; : > "$LOG"
+printf 'tools: WASI_SDK=%s  BINARYEN=%s  WASM_INTERP=%s  WASM_OF_OCAML=%s\n' \
+  "${WASI_SDK:-<unset>}" "${BINARYEN:-<unset>}" "${WASM_INTERP:-<unset>}" "${WASM_OF_OCAML:-<unset>}"
 
 declare -A STATUS
 say()  { printf '\n==> %s\n' "$*"; }
@@ -86,9 +109,9 @@ step_wasmtime() {
 }
 
 check_wasm_tools() {
-  [ -x "$WASI_SDK/bin/clang" ] || { echo "wasi-sdk not found at $WASI_SDK (set WASI_SDK; wasi-sdk-22 from https://github.com/WebAssembly/wasi-sdk/releases)"; return 1; }
-  [ -x "$BINARYEN/bin/wasm-merge" ] || { echo "binaryen not found at $BINARYEN (set BINARYEN; needs --enable-stack-switching, v124 works)"; return 1; }
-  [ -x "$WASM_INTERP" ] || { echo "reference interpreter not found at $WASM_INTERP (set WASM_INTERP; build ~/workspace/specfx/interpreter)"; return 1; }
+  need_tool WASI_SDK "wasi-sdk 22 install root (https://github.com/WebAssembly/wasi-sdk/releases/tag/wasi-sdk-22)" /bin/clang || return 1
+  need_tool BINARYEN "binaryen install root with bin/wasm-merge (>= v124, --enable-stack-switching)" /bin/wasm-merge || return 1
+  need_tool WASM_INTERP "the WasmFX reference interpreter binary (https://github.com/wasmfx/specfx, interpreter/wasm)" || return 1
 }
 
 # Patch old-encoding `switch` opcodes (0xE5 ct tag) to the current 0xE6 — the reference
@@ -151,6 +174,7 @@ PY
 }
 
 step_pingpong() {
+  need_tool WASM_INTERP "the WasmFX reference interpreter binary (https://github.com/wasmfx/specfx, interpreter/wasm)" || return 1
   check_wasm_tools || return 1
   python3 - "$ROOT" "$BUILD" <<'PY'
 import sys
@@ -176,7 +200,8 @@ step_ocaml() {
     command -v opam >/dev/null && eval "$(opam env)" || true
   fi
   command -v ocamlfind >/dev/null || command -v ocamlc >/dev/null || { echo "no ocamlc/ocamlfind (opam switch not set up)"; return 1; }
-  [ -x "$WASM_OF_OCAML" ] || { echo "wasm_of_ocaml not found at $WASM_OF_OCAML (build js_of_ocaml master; see CLAUDE.md)"; return 1; }
+  need_tool WASM_OF_OCAML "wasm_of_ocaml.exe from a js_of_ocaml master build (CLAUDE.md, js_of_ocaml caveat)" || return 1
+  need_tool BINARYEN "binaryen install root; wasm_of_ocaml needs bin/wasm-opt and bin/wasm-merge" /bin/wasm-opt || return 1
   microbench/build-ocaml.sh
 }
 

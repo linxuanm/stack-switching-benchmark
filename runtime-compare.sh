@@ -30,6 +30,7 @@
 #     sections.
 #   * microbench/profile-report.py classifies every sample by address, then by symbol, into
 #     the clusters of the FIBER_C_COMPARE tables.
+if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi   # `sh <script>` -> re-run under bash
 set -u
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WASM_DIR="$ROOT/microbench/wasm"

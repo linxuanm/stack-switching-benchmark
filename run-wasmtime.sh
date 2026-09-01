@@ -2,6 +2,7 @@
 # run-wasmtime.sh — time every benchmark wasm in microbench/wasm on Wasmtime (Cranelift).
 # Usage: ./run-wasmtime.sh --repeat N [--only pat] [--skip pat] [--timeout SECS] [--list]
 # Overrides: WASMTIME (binary), WASMTIME_FLAGS (feature flags for `wasmtime run`).
+if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi   # `sh <script>` -> re-run under bash
 set -u
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 

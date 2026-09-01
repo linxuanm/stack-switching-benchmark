@@ -16,10 +16,17 @@
 # spectest.print_i32, decoded back to text at the end.
 set -euo pipefail
 
-WOO="${WASM_OF_OCAML:-$HOME/workspace/js_of_ocaml/_build/default/compiler/bin-wasm_of_ocaml/wasm_of_ocaml.exe}"
-BINARYEN_BIN="${BINARYEN_BIN:-$HOME/dev_path/binaryen/bin}"
-WASM="${WASM_INTERP:-wasm}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
+# Tool locations come from the environment or <repo>/build.env (template: build.env.example);
+# nothing is guessed.
+# shellcheck disable=SC1091
+[ -f "$HERE/../build.env" ] && . "$HERE/../build.env"
+WOO="${WASM_OF_OCAML:-}"
+BINARYEN_BIN="${BINARYEN_BIN:-${BINARYEN:+$BINARYEN/bin}}"
+WASM="${WASM_INTERP:-}"
+[ -n "$WOO" ] || { echo "WASM_OF_OCAML is not set (wasm_of_ocaml.exe from a js_of_ocaml master build)" >&2; exit 1; }
+[ -n "$BINARYEN_BIN" ] || { echo "BINARYEN is not set (binaryen install root with bin/wasm-merge)" >&2; exit 1; }
+[ -n "$WASM" ] || { echo "WASM_INTERP is not set (the WasmFX reference interpreter binary)" >&2; exit 1; }
 OUTDIR="${OUTDIR:-$(mktemp -d)}"
 
 MERGE_FLAGS="--enable-nontrapping-float-to-int --enable-exception-handling \

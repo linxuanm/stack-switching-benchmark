@@ -2,6 +2,7 @@
 # run-wizard.sh — time every benchmark wasm in microbench/wasm on Wizard (SPC via --mode=jit).
 # Usage: ./run-wizard.sh --repeat N [--only pat] [--skip pat] [--timeout SECS] [--list]
 # Overrides: WIZENG (binary), WIZARD_FLAGS (engine flags).
+if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi   # `sh <script>` -> re-run under bash
 set -u
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 

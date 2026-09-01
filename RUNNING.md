@@ -20,6 +20,10 @@ fiber-c/        wasmfx/fiber-c              Fibers in C, Asyncify vs WasmFX back
 | binaryen | `~/dev_path/binaryen/bin` | v124, has `--enable-stack-switching`. |
 | wasmtime | `~/.wasmtime/bin/wasmtime` | For real timing runs. |
 
+The scripts take these from `WASI_SDK`, `BINARYEN`, `WASM_INTERP` and `WASM_OF_OCAML`
+(environment or a gitignored `build.env`; template `build.env.example`) and stop with a
+message when one is unset — the paths above are this machine's, not defaults.
+
 ### The js_of_ocaml situation
 
 The local checkout was on a `native-effects` branch (a fork,

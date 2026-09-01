@@ -35,7 +35,7 @@ All built at the pinned submodule commits; sizes/args chosen so single runs land
 | `c10m_wasmfx.wasm` | `fiber-c/examples/c10m.c` | 10 M connections over 10 000 live fibers (compiled in) | resume/suspend |
 
 Rebuilding: `research/compiler-diff/build-fiber-c.sh <name>` reproduces the fiber-c modules
-(wasi-sdk 22 from `~/workspace/benchfx/tools/wasi-sdk/`, binaryen v124, the reference
+(wasi-sdk 22 via `WASI_SDK`, binaryen v124 via `BINARYEN`, the reference
 interpreter for the shim). `itersum_switch` additionally needs the two toolchain workarounds
 from `research/COMPILER_DIFF.md` §2.2–2.3 (declare `$cancel` first; patch the `switch` opcode
 byte `0xE5`→`0xE6`), and `pingpong_checked.wasm` is generated from `pingpong.wat` by renaming

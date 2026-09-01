@@ -87,7 +87,13 @@ pools nor frees.**
 A pin names a branch, so it is unaffected by which branch is checked out — but that branch emits
 *legacy* exception handling, which the reference interpreter rejects (`decoding error: illegal
 opcode 06`). Master emits `try_table` and adds `--effects=native`. **Always use the built
-`wasm_of_ocaml.exe` by absolute path**, which is what `tools/ocaml-refrun.sh` does.
+`wasm_of_ocaml.exe`** — point `WASM_OF_OCAML` at it.
+
+**The scripts do not assume any of these locations.** `build-all.sh`, `tools/ocaml-refrun.sh`,
+`microbench/build-ocaml.sh` and the `research/compiler-diff/` scripts take `WASI_SDK`,
+`BINARYEN`, `WASM_INTERP` and `WASM_OF_OCAML` from the environment or from a gitignored
+`build.env` at the repo root (template: `build.env.example`), and stop with a message naming the
+variable when one is unset. The table above is where they point on this machine, nothing more.
 
 ## Reference-interpreter gotchas
 
