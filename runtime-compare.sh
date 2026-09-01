@@ -58,7 +58,7 @@ while [ $# -gt 0 ]; do
     --timeout) TIMEOUT_SECS="$2"; shift 2 ;; --timeout=*) TIMEOUT_SECS="${1#*=}"; shift ;;
     --out) OUT="$2"; shift 2 ;;        --out=*) OUT="${1#*=}"; shift ;;
     --list) LIST_ONLY=1; shift ;;
-    -h|--help) sed -n '2,34p' "$0"; exit 0 ;;
+    -h|--help) awk 'NR > 1 && !/^#/ { exit } NR > 1 { print }' "$0"; exit 0 ;;
     *) echo "unknown option: $1 (try --help)" >&2; exit 2 ;;
   esac
 done
