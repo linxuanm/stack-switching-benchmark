@@ -5,7 +5,8 @@
 #
 # It points every tool the scripts use into dependencies/ (populated by ./build-all.sh):
 #   WIZENG, WASMTIME     the two engines
-#   V3C, VIRGIL_LOC      Virgil, for building Wizard
+#   V3C, VIRGIL_LOC      Virgil, for building Wizard (the compiler bootstrapped from the pinned
+#                        master sources, bin/current/ — the checked-in stable binary is too old)
 #   WASI_SDK             wasi-sdk 22 (downloaded by build-all.sh)
 #   BINARYEN             binaryen build tree: $BINARYEN/bin/{wasm-opt,wasm-merge,...}
 #   WASM_INTERP          the WasmFX reference interpreter (specfx)
@@ -34,7 +35,7 @@ export BENCHMARK_SRC="$BENCH_ROOT/benchmark"
 : "${WIZENG:=$DEPS/wizard-engine/bin/wizeng.x86-64-linux}"
 : "${WASMTIME:=$DEPS/wasmtime/target/release/wasmtime}"
 : "${VIRGIL_LOC:=$DEPS/virgil}"
-: "${V3C:=$VIRGIL_LOC/bin/v3c}"
+: "${V3C:=$VIRGIL_LOC/bin/current/x86-64-linux/Aeneas}"   # bootstrapped from the pinned sources by build-all.sh
 : "${WASI_SDK:=$DEPS/wasi-sdk}"
 : "${BINARYEN:=$DEPS/binaryen-build}"
 : "${WASM_INTERP:=$DEPS/specfx/interpreter/wasm}"

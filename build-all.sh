@@ -14,7 +14,9 @@
 #
 # Steps (in order; each can be skipped):
 #   submodules   git submodule update --init for everything built here
-#   virgil       dependencies/virgil: link bin/v3c to the checked-in stable compiler
+#   virgil       dependencies/virgil: bootstrap the compiler from the pinned sources
+#                (bin/dev/aeneas bootstrap -> bin/current/x86-64-linux/Aeneas; the checked-in
+#                stable binary is only used to build it and cannot compile Wizard itself)
 #   wizard       dependencies/wizard-engine/build.sh wizeng x86-64-linux
 #   wasmtime     cargo +$RUST_TOOLCHAIN build --release --bin wasmtime            (needs rustup)
 #   wasi-sdk     wasi-sdk 22: download (105 MB, sha256-checked) into dependencies/wasi-sdk
@@ -100,15 +102,19 @@ step_submodules() {
 }
 
 step_virgil() {
-  override VIRGIL_LOC && return 0
-  [ -x "$VIRGIL_LOC/bin/stable/x86-64-linux/Aeneas" ] || { echo "no stable Virgil binary for x86-64-linux under $VIRGIL_LOC/bin/stable"; return 1; }
-  # bin/v3c is a wrapper script that replaces itself with a symlink to bin/stable/<host>/Aeneas
-  # on first use (Virgil's own bootstrap design); hide that from git as upstream's script means to.
-  "$V3C" -help >/dev/null 2>&1 || true
-  [ -x "$(readlink -f "$V3C")" ] || { echo "$V3C did not resolve to an executable compiler"; return 1; }
+  override V3C && return 0
+  [ -e "$VIRGIL_LOC/lib/util/Vector.v3" ] || { echo "Virgil sources not found under $VIRGIL_LOC (submodules step?)"; return 1; }
+  if [ ! -x "$V3C" ]; then
+    [ -x "$VIRGIL_LOC/bin/stable/x86-64-linux/Aeneas" ] || { echo "no stable Virgil binary for x86-64-linux under $VIRGIL_LOC/bin/stable (needed to bootstrap)"; return 1; }
+    # Build the compiler from the pinned sources: stable -> bin/bootstrap -> bin/current (both ignored
+    # by Virgil's .gitignore). With V3C unset, aeneas starts from the stable binary.
+    ( cd "$VIRGIL_LOC" && env -u V3C bin/dev/aeneas bootstrap x86-64-linux ) || return 1
+  fi
+  [ -x "$V3C" ] || { echo "bootstrap did not produce $V3C"; return 1; }
+  # aeneas' final .setup-v3c step turns the tracked wrapper bin/v3c into a symlink; hide that from
+  # git as upstream's own script intends (bin/v3c is also in Virgil's .gitignore).
   ( cd "$VIRGIL_LOC" && git update-index --assume-unchanged bin/v3c 2>/dev/null ) || true
-  [ -e "$VIRGIL_LOC/lib/util/Vector.v3" ] || { echo "Virgil library not found under $VIRGIL_LOC/lib"; return 1; }
-  echo "v3c -> $(readlink -f "$V3C")"
+  echo "v3c: $V3C ($("$V3C" -version 2>&1 | head -1))"
 }
 
 step_wizard() {

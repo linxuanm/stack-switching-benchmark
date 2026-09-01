@@ -30,7 +30,7 @@ That is the gap this repo aims at. Background: [`lit-review/README.md`](lit-revi
 | `benchmark/angstrom/` | Parser combinators. Uses **no effects** — a baseline for what the stack-switching calling convention costs ordinary code | submodule, upstream |
 | `dependencies/wizard-engine/` | **The research vehicle.** Titzer's Wizard engine, in Virgil | submodule, upstream |
 | `dependencies/wasmtime/` | Reference implementation to compare against, in Rust | submodule, upstream |
-| `dependencies/virgil/` | The Virgil compiler, for building Wizard (a stable binary is checked in upstream) | submodule, upstream |
+| `dependencies/virgil/` | The Virgil compiler, for building Wizard — `build-all.sh` bootstraps it from the pinned master sources into `bin/current/` (the checked-in stable binary is too old for Wizard) | submodule, upstream |
 | `dependencies/specfx/` | The WasmFX-merged reference interpreter (`interpreter/wasm`) | submodule, upstream |
 | `dependencies/binaryen/` | binaryen `version_124` (`wasm-merge`, `wasm-opt`, …), built into `dependencies/binaryen-build/` | submodule, upstream |
 | `dependencies/js_of_ocaml/` | js_of_ocaml master, for `wasm_of_ocaml.exe` | submodule, upstream |
