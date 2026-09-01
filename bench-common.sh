@@ -35,7 +35,7 @@ BENCHMARKS=(
   "state_wasmfx.wasm||wasi"
   "skynet_wasmfx.wasm||wasi"
   "c10m_wasmfx.wasm||wasi"
-  # OCaml effect benchmarks (benches/multicore/multicore-effects via wasm_of_ocaml
+  # OCaml effect benchmarks (benchmark/benches/multicore/multicore-effects via wasm_of_ocaml
   # --effects=native; rebuild: microbench/build-ocaml.sh). The effect-using ones are
   # Wizard-only today: upstream Wasmtime refuses them ("Stack switching feature not
   # compatible with GC, yet"); rec_seq_fib is the no-effects control and runs on both.

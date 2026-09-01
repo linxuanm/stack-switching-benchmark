@@ -1,58 +1,46 @@
 #!/usr/bin/env bash
-# build-all.sh — the one place that builds everything in this repo.
+# build-all.sh — the one place that builds everything: the dependencies under dependencies/ and
+# the benchmark modules under microbench/wasm/.
 #
 #   git clone --recurse-submodules <repo> && cd <repo> && ./build-all.sh
 #   ./run-wizard.sh --repeat 5; ./run-wasmtime.sh --repeat 5   # then time the suites ...
 #   ./runtime-compare.sh                                      # ... or profile both engines
 #
+# Layout: benchmark/ holds the benchmark sources (fiber-c, benches, macro-benches, angstrom);
+# dependencies/ holds the engines and the toolchain — pinned submodules, plus the wasi-sdk
+# download and a local opam switch. env.sh points every tool variable into dependencies/ and
+# every script sources it. A variable set beforehand (environment or ./build.env, template
+# build.env.example) wins, and the step that would build that dependency is skipped.
+#
 # Steps (in order; each can be skipped):
-#   submodules  git submodule update --init for wizard-engine, wasmtime, fiber-c, benches
-#   wizard      wizard-engine/build.sh wizeng x86-64-linux            (needs Virgil v3c)
-#   wasmtime    cargo +<toolchain> build --release --bin wasmtime     (needs rustup; >= 1.96)
-#   fiberc      fiber-c benchmarks -> microbench/wasm/*_wasmfx.wasm   (needs wasi-sdk, binaryen,
-#               reference interpreter), incl. the switch module with its two toolchain
-#               workarounds (research/COMPILER_DIFF.md 2.2: tag reorder + 0xE5->0xE6 patch)
-#   pingpong    microbench/wasm/pingpong_checked.wasm from research/compiler-diff/pingpong.wat
-#   ocaml       benches/multicore/multicore-effects -> microbench/wasm/ocaml_*.wasm
-#               (needs opam env with ocamlfind, and the wasm_of_ocaml master build)
-#   smoke       one tiny run per engine to confirm the setup works
+#   submodules   git submodule update --init for everything built here
+#   virgil       dependencies/virgil: link bin/v3c to the checked-in stable compiler
+#   wizard       dependencies/wizard-engine/build.sh wizeng x86-64-linux
+#   wasmtime     cargo +$RUST_TOOLCHAIN build --release --bin wasmtime            (needs rustup)
+#   wasi-sdk     wasi-sdk 22: download (105 MB, sha256-checked) into dependencies/wasi-sdk
+#   binaryen     dependencies/binaryen -> dependencies/binaryen-build (cmake; needs a C++17
+#                compiler; the vendored LLVM DWARF subset is part of the build)
+#   ocaml        local opam switch dependencies/ocaml: OCaml 5.4.0 + dune, menhir, ppxlib, ...
+#                (needs opam >= 2.1 after `opam init`; compiles OCaml, ~10 min the first time)
+#   specfx       dependencies/specfx/interpreter: the WasmFX reference interpreter (`wasm`)
+#   jsoo         dependencies/js_of_ocaml: wasm_of_ocaml.exe
+#   fiberc       fiber-c benchmarks -> microbench/wasm/*_wasmfx.wasm, incl. the switch module
+#                with its two toolchain workarounds (research/COMPILER_DIFF.md 2.2)
+#   pingpong     microbench/wasm/pingpong_checked.wasm from research/compiler-diff/pingpong.wat
+#   ocaml-bench  benchmark/benches/multicore/multicore-effects -> microbench/wasm/ocaml_*.wasm
+#   smoke        one tiny run per engine to confirm the setup works
 #
 # Usage: ./build-all.sh [--skip step[,step...]] [--only step[,step...]] [--list]
-# Tool locations are NOT guessed. Set them in the environment or in ./build.env (gitignored,
-# sourced if present; template: build.env.example). A step whose tool is unset stops and says so.
-#   WASI_SDK       wasi-sdk 22 install root (bin/clang, share/wasi-sysroot)          [fiberc]
-#   BINARYEN       binaryen install root (bin/wasm-merge, bin/wasm-opt; >= v124,
-#                  built with --enable-stack-switching support)                      [fiberc, ocaml]
-#   WASM_INTERP    the WasmFX reference interpreter binary (specfx/interpreter/wasm)  [fiberc, pingpong]
-#   WASM_OF_OCAML  wasm_of_ocaml.exe from a js_of_ocaml master build                 [ocaml]
-#   V3C            Virgil compiler (default: v3c on PATH)                             [wizard]
-#   RUST_TOOLCHAIN rustup toolchain for wasmtime (default 1.98.0, installed if absent) [wasmtime]
+# Host prerequisites (not vendored): git, curl, tar, python3, rustup, opam, cmake and a C++
+# compiler (ninja is used when present). Everything else comes from dependencies/.
 if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi   # `sh <script>` -> re-run under bash
 set -u
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
-
 # shellcheck disable=SC1091
-[ -f "$ROOT/build.env" ] && . "$ROOT/build.env"
-RUST_TOOLCHAIN="${RUST_TOOLCHAIN:-1.98.0}"
-WASI_SDK="${WASI_SDK:-}"; BINARYEN="${BINARYEN:-}"; WASM_INTERP="${WASM_INTERP:-}"; WASM_OF_OCAML="${WASM_OF_OCAML:-}"
-export WASI_SDK BINARYEN WASM_INTERP WASM_OF_OCAML
+. "$ROOT/env.sh"
 
-# need_tool VAR "what it is" [path-under-it-that-must-exist]: fail with a clear message, never guess
-need_tool() {
-  local var="$1" what="$2" sub="${3:-}" val
-  val="${!var}"
-  if [ -z "$val" ]; then
-    echo "$var is not set — $what. Set it in the environment or in $ROOT/build.env (template: build.env.example)."
-    return 1
-  fi
-  if [ ! -e "$val$sub" ]; then
-    echo "$var=$val, but $val$sub does not exist — $what."
-    return 1
-  fi
-}
-
-STEPS=(submodules wizard wasmtime fiberc pingpong ocaml smoke)
+STEPS=(submodules virgil wizard wasmtime wasi-sdk binaryen ocaml specfx jsoo fiberc pingpong ocaml-bench smoke)
 SKIP=""; ONLY=""
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -61,7 +49,7 @@ while [ $# -gt 0 ]; do
     --only) ONLY="$2"; shift 2 ;;
     --only=*) ONLY="${1#*=}"; shift ;;
     --list) printf '%s\n' "${STEPS[@]}"; exit 0 ;;
-    -h|--help) sed -n '2,26p' "$0"; exit 0 ;;
+    -h|--help) awk 'NR > 1 && !/^#/ { exit } NR > 1 { print }' "$0"; exit 0 ;;
     *) echo "unknown option: $1 (try --help)" >&2; exit 2 ;;
   esac
 done
@@ -75,8 +63,24 @@ BUILD="$ROOT/microbench/build"       # intermediates (gitignored)
 WASM_OUT="$ROOT/microbench/wasm"     # what run-wizard.sh / run-wasmtime.sh consume
 mkdir -p "$BUILD" "$WASM_OUT"
 LOG="$BUILD/build-all.log"; : > "$LOG"
-printf 'tools: WASI_SDK=%s  BINARYEN=%s  WASM_INTERP=%s  WASM_OF_OCAML=%s\n' \
-  "${WASI_SDK:-<unset>}" "${BINARYEN:-<unset>}" "${WASM_INTERP:-<unset>}" "${WASM_OF_OCAML:-<unset>}"
+echo "tools (from env.sh):"
+for v in WIZENG WASMTIME V3C WASI_SDK BINARYEN WASM_INTERP WASM_OF_OCAML_EXE OCAML_SWITCH RUST_TOOLCHAIN; do
+  printf '    %-14s %s\n' "$v" "${!v}"
+done
+
+# in_deps VAR: true when the variable points into dependencies/, i.e. this script owns it.
+in_deps() { case "${!1}" in "$DEPS"/*) return 0 ;; *) return 1 ;; esac; }
+# override VAR: when the tool comes from elsewhere, say so and let the step return early.
+override() { in_deps "$1" && return 1; echo "using $1=${!1} (override — not built here)"; return 0; }
+# need_tool VAR "what it is" step [path-under-it-that-must-exist]: never guess, say what to do.
+need_tool() {
+  local var="$1" what="$2" step="$3" sub="${4:-}" val="${!1}"
+  if [ ! -e "$val$sub" ]; then
+    if in_deps "$var"; then echo "$var: $val$sub is missing — $what. Run: ./build-all.sh --only $step"
+    else echo "$var=$val (override), but $val$sub does not exist — $what."; fi
+    return 1
+  fi
+}
 
 declare -A STATUS
 say()  { printf '\n==> %s\n' "$*"; }
@@ -89,29 +93,107 @@ run_step() { # name  fn
 }
 
 step_submodules() {
-  git submodule update --init wizard-engine wasmtime fiber-c benches
+  git submodule update --init dependencies/virgil dependencies/wizard-engine dependencies/wasmtime \
+    dependencies/binaryen dependencies/specfx dependencies/js_of_ocaml benchmark/fiber-c benchmark/benches
+  # benchmark/macro-benches and benchmark/angstrom are not built by anything here:
+  #   git submodule update --init benchmark/macro-benches benchmark/angstrom
+}
+
+step_virgil() {
+  override VIRGIL_LOC && return 0
+  [ -x "$VIRGIL_LOC/bin/stable/x86-64-linux/Aeneas" ] || { echo "no stable Virgil binary for x86-64-linux under $VIRGIL_LOC/bin/stable"; return 1; }
+  # bin/v3c is a wrapper script that replaces itself with a symlink to bin/stable/<host>/Aeneas
+  # on first use (Virgil's own bootstrap design); hide that from git as upstream's script means to.
+  "$V3C" -help >/dev/null 2>&1 || true
+  [ -x "$(readlink -f "$V3C")" ] || { echo "$V3C did not resolve to an executable compiler"; return 1; }
+  ( cd "$VIRGIL_LOC" && git update-index --assume-unchanged bin/v3c 2>/dev/null ) || true
+  [ -e "$VIRGIL_LOC/lib/util/Vector.v3" ] || { echo "Virgil library not found under $VIRGIL_LOC/lib"; return 1; }
+  echo "v3c -> $(readlink -f "$V3C")"
 }
 
 step_wizard() {
-  command -v "${V3C:-v3c}" >/dev/null || { echo "Virgil compiler (v3c) not on PATH; install Virgil (https://github.com/titzer/virgil) or set V3C"; return 1; }
-  ( cd wizard-engine && ./build.sh wizeng x86-64-linux )
-  test -x wizard-engine/bin/wizeng.x86-64-linux
+  override WIZENG && return 0
+  need_tool V3C "the Virgil compiler" virgil || return 1
+  ( cd "$DEPS/wizard-engine" && ./build.sh wizeng x86-64-linux )
+  test -x "$WIZENG"
 }
 
 step_wasmtime() {
+  override WASMTIME && return 0
   command -v rustup >/dev/null || { echo "rustup not found; install from https://rustup.rs (wasmtime needs Rust >= 1.96)"; return 1; }
   if ! rustup toolchain list | grep -q "^$RUST_TOOLCHAIN"; then
     echo "installing Rust toolchain $RUST_TOOLCHAIN (one-time, network)"
     rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal
   fi
-  ( cd wasmtime && cargo "+$RUST_TOOLCHAIN" build --release --bin wasmtime )
-  test -x wasmtime/target/release/wasmtime
+  ( cd "$DEPS/wasmtime" && cargo "+$RUST_TOOLCHAIN" build --release --bin wasmtime )
+  test -x "$WASMTIME"
+}
+
+WASI_SDK_URL=https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-22/wasi-sdk-22.0-linux.tar.gz
+WASI_SDK_SHA256=fa46b8f1b5170b0fecc0daf467c39f44a6d326b80ced383ec4586a50bc38d7b8
+step_wasi_sdk() {
+  override WASI_SDK && return 0
+  if [ -x "$WASI_SDK/bin/clang" ]; then echo "already present: $WASI_SDK"; return 0; fi
+  local tarball="$DEPS/$(basename "$WASI_SDK_URL")"
+  if ! echo "$WASI_SDK_SHA256  $tarball" | sha256sum -c --status 2>/dev/null; then
+    command -v curl >/dev/null || { echo "curl not found (needed to download wasi-sdk)"; return 1; }
+    echo "downloading $WASI_SDK_URL"
+    curl -fL --retry 3 -o "$tarball" "$WASI_SDK_URL" || return 1
+    echo "$WASI_SDK_SHA256  $tarball" | sha256sum -c --status || { echo "sha256 mismatch for $tarball"; return 1; }
+  fi
+  rm -rf "$WASI_SDK"; mkdir -p "$WASI_SDK"
+  tar xzf "$tarball" -C "$WASI_SDK" --strip-components=1
+  test -x "$WASI_SDK/bin/clang"
+}
+
+step_binaryen() {
+  override BINARYEN && return 0
+  command -v cmake >/dev/null || { echo "cmake not found (binaryen needs cmake and a C++17 compiler)"; return 1; }
+  local gen=()
+  command -v ninja >/dev/null && gen=(-G Ninja)
+  cmake -S "$DEPS/binaryen" -B "$BINARYEN" ${gen[@]+"${gen[@]}"} -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_TESTS=OFF -DBUILD_STATIC_LIB=OFF -DENABLE_WERROR=OFF -DBUILD_LLVM_DWARF=ON || return 1
+  cmake --build "$BINARYEN" -j"$(nproc)" --target wasm-opt wasm-merge wasm-metadce wasm-as wasm-dis || return 1
+  test -x "$BINARYEN/bin/wasm-merge"
+}
+
+OCAML_VERSION=5.4.0
+OCAML_PACKAGES=(dune.3.20.2 menhir.20231231 menhirLib.20231231 menhirSdk.20231231 sedlex.3.7
+                ppxlib.0.37.0 cmdliner.2.0.0 yojson.2.1.2 ocamlfind.1.9.6 ocaml-compiler-libs.v0.17.0)
+step_ocaml() {
+  if override OCAML_SWITCH; then eval "$(opam env --switch="$OCAML_SWITCH" --set-switch)"; return 0; fi
+  command -v opam >/dev/null || { echo "opam not found (https://opam.ocaml.org/doc/Install.html)"; return 1; }
+  opam switch list >/dev/null 2>&1 || { echo "opam is not initialised — run: opam init --bare"; return 1; }
+  if [ ! -d "$OCAML_SWITCH/_opam" ]; then
+    echo "creating opam switch $OCAML_SWITCH with OCaml $OCAML_VERSION (compiles OCaml; several minutes)"
+    mkdir -p "$OCAML_SWITCH"
+    opam switch create "$OCAML_SWITCH" "ocaml-base-compiler.$OCAML_VERSION" --no-install --yes || return 1
+  fi
+  opam install --switch="$OCAML_SWITCH" --yes "${OCAML_PACKAGES[@]}" \
+    || { echo "opam install failed — if a version is unknown to your opam repository, run 'opam update' and retry"; return 1; }
+  eval "$(opam env --switch="$OCAML_SWITCH" --set-switch)"
+  echo "ocaml $(ocamlfind ocamlc -version) at $OCAML_SWITCH"
+}
+
+step_specfx() {
+  override WASM_INTERP && return 0
+  command -v dune >/dev/null || { echo "dune not on PATH — the ocaml step provides it"; return 1; }
+  ( cd "$DEPS/specfx/interpreter" && make )
+  test -x "$WASM_INTERP"
+}
+
+step_jsoo() {
+  override WASM_OF_OCAML_EXE && return 0
+  command -v dune >/dev/null || { echo "dune not on PATH — the ocaml step provides it"; return 1; }
+  need_tool BINARYEN "binaryen (the wasm runtime build runs wasm-as/wasm-merge)" binaryen /bin/wasm-merge || return 1
+  ( cd "$DEPS/js_of_ocaml" && dune build compiler/bin-wasm_of_ocaml/wasm_of_ocaml.exe )
+  test -x "$WASM_OF_OCAML_EXE"
 }
 
 check_wasm_tools() {
-  need_tool WASI_SDK "wasi-sdk 22 install root (https://github.com/WebAssembly/wasi-sdk/releases/tag/wasi-sdk-22)" /bin/clang || return 1
-  need_tool BINARYEN "binaryen install root with bin/wasm-merge (>= v124, --enable-stack-switching)" /bin/wasm-merge || return 1
-  need_tool WASM_INTERP "the WasmFX reference interpreter binary (https://github.com/wasmfx/specfx, interpreter/wasm)" || return 1
+  need_tool WASI_SDK "wasi-sdk 22" wasi-sdk /bin/clang || return 1
+  need_tool BINARYEN "binaryen (wasm-merge, wasm-opt)" binaryen /bin/wasm-merge || return 1
+  need_tool WASM_INTERP "the WasmFX reference interpreter" specfx || return 1
 }
 
 # Patch old-encoding `switch` opcodes (0xE5 ct tag) to the current 0xE6 — the reference
@@ -174,8 +256,7 @@ PY
 }
 
 step_pingpong() {
-  need_tool WASM_INTERP "the WasmFX reference interpreter binary (https://github.com/wasmfx/specfx, interpreter/wasm)" || return 1
-  check_wasm_tools || return 1
+  need_tool WASM_INTERP "the WasmFX reference interpreter" specfx || return 1
   python3 - "$ROOT" "$BUILD" <<'PY'
 import sys
 root, build = sys.argv[1], sys.argv[2]
@@ -195,44 +276,49 @@ PY
   patch_switch "$WASM_OUT/pingpong_checked.wasm" 1 0 3         # switch $ct(=type 1) $yield(=tag 0), 3 sites
 }
 
-step_ocaml() {
-  if ! command -v ocamlfind >/dev/null; then
-    command -v opam >/dev/null && eval "$(opam env)" || true
-  fi
-  command -v ocamlfind >/dev/null || command -v ocamlc >/dev/null || { echo "no ocamlc/ocamlfind (opam switch not set up)"; return 1; }
-  need_tool WASM_OF_OCAML "wasm_of_ocaml.exe from a js_of_ocaml master build (CLAUDE.md, js_of_ocaml caveat)" || return 1
-  need_tool BINARYEN "binaryen install root; wasm_of_ocaml needs bin/wasm-opt and bin/wasm-merge" /bin/wasm-opt || return 1
+step_ocaml_bench() {
+  command -v ocamlfind >/dev/null || { echo "ocamlfind not on PATH — the ocaml step provides it (or set OCAML_SWITCH)"; return 1; }
+  need_tool WASM_OF_OCAML_EXE "wasm_of_ocaml.exe" jsoo || return 1
+  need_tool BINARYEN "binaryen (wasm_of_ocaml runs wasm-opt/wasm-merge)" binaryen /bin/wasm-opt || return 1
   microbench/build-ocaml.sh
 }
 
 step_smoke() {
   local rc=0 out
-  if [ -x wizard-engine/bin/wizeng.x86-64-linux ]; then
-    out=$(wizard-engine/bin/wizeng.x86-64-linux --ext:all --stack-size=65536 --mode=jit "$WASM_OUT/itersum_wasmfx.wasm" 1000 2>&1)       && echo "wizard   itersum 1000 -> $out" || { echo "wizard smoke FAILED: $out"; rc=1; }
-  else echo "wizard binary missing"; rc=1; fi
-  if [ -x wasmtime/target/release/wasmtime ]; then
-    out=$(wasmtime/target/release/wasmtime run -W=exceptions,function-references,gc,stack-switching,tail-call "$WASM_OUT/itersum_wasmfx.wasm" 1000 2>&1)       && echo "wasmtime itersum 1000 -> $out" || { echo "wasmtime smoke FAILED: $out"; rc=1; }
-  else echo "wasmtime binary missing"; rc=1; fi
+  if [ -x "$WIZENG" ]; then
+    out=$("$WIZENG" --ext:all --stack-size=65536 --mode=jit "$WASM_OUT/itersum_wasmfx.wasm" 1000 2>&1) \
+      && echo "wizard   itersum 1000 -> $out" || { echo "wizard smoke FAILED: $out"; rc=1; }
+  else echo "wizard binary missing ($WIZENG)"; rc=1; fi
+  if [ -x "$WASMTIME" ]; then
+    out=$("$WASMTIME" run -W=exceptions,function-references,gc,stack-switching,tail-call "$WASM_OUT/itersum_wasmfx.wasm" 1000 2>&1) \
+      && echo "wasmtime itersum 1000 -> $out" || { echo "wasmtime smoke FAILED: $out"; rc=1; }
+  else echo "wasmtime binary missing ($WASMTIME)"; rc=1; fi
   return $rc
 }
 
-run_step submodules step_submodules
-run_step wizard     step_wizard
-run_step wasmtime   step_wasmtime
-run_step fiberc     step_fiberc
-run_step pingpong   step_pingpong
-run_step ocaml      step_ocaml
-run_step smoke      step_smoke
+run_step submodules  step_submodules
+run_step virgil      step_virgil
+run_step wizard      step_wizard
+run_step wasmtime    step_wasmtime
+run_step wasi-sdk    step_wasi_sdk
+run_step binaryen    step_binaryen
+run_step ocaml       step_ocaml
+run_step specfx      step_specfx
+run_step jsoo        step_jsoo
+run_step fiberc      step_fiberc
+run_step pingpong    step_pingpong
+run_step ocaml-bench step_ocaml_bench
+run_step smoke       step_smoke
 
 say "summary"
 overall=0
 for s in "${STEPS[@]}"; do
-  printf '    %-11s %s\n' "$s" "${STATUS[$s]:-skipped}"
+  printf '    %-12s %s\n' "$s" "${STATUS[$s]:-skipped}"
   [ "${STATUS[$s]:-}" = "FAILED" ] && overall=1
 done
 if [ $overall -eq 0 ]; then
   echo
-  echo "Ready. Next: ./run-wizard.sh --repeat 5   and   ./run-wasmtime.sh --repeat 5"
+  echo "Ready. Next: ./run-wizard.sh --repeat 5   and   ./run-wasmtime.sh --repeat 5   (or: source env.sh)"
 else
   echo
   echo "Some steps failed — details in $LOG"

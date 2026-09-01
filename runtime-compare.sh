@@ -16,7 +16,7 @@
 #         setarch, python3, and the engines + fiber-c modules that build-all.sh produces.
 #         Kernel samples need kernel.perf_event_paranoid <= 1; above that the script samples
 #         user space only (`cpu-clock:u`) and says so in the report.
-# Env:    WIZENG, WIZARD_FLAGS, WASMTIME, WASMTIME_FLAGS (same defaults as run-*.sh), PERF.
+# Env:    WIZENG, WASMTIME (from env.sh), WIZARD_FLAGS, WASMTIME_FLAGS (as in run-*.sh), PERF.
 #
 # Method (research/FIBER_C_COMPARE.md section 2):
 #   * `perf record -e cpu-clock -F <freq>` around the whole engine process.
@@ -35,9 +35,9 @@ set -u
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WASM_DIR="$ROOT/microbench/wasm"
 
-WIZENG="${WIZENG:-$ROOT/wizard-engine/bin/wizeng.x86-64-linux}"
+# shellcheck disable=SC1091
+. "$ROOT/env.sh"                      # WIZENG, WASMTIME (dependencies/), overridable
 WIZARD_FLAGS="${WIZARD_FLAGS:---ext:all --stack-size=65536 --mode=jit}"
-WASMTIME="${WASMTIME:-$ROOT/wasmtime/target/release/wasmtime}"
 WASMTIME_FLAGS="${WASMTIME_FLAGS:--W=exceptions,function-references,gc,stack-switching,tail-call}"
 
 # Benchmark | argv — the fiber-c set and sizes of research/FIBER_C_COMPARE.md.

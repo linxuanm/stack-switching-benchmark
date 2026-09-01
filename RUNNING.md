@@ -5,10 +5,10 @@ each of them running under the **stack-switching / WasmFX reference
 interpreter**.
 
 ```
-benches/        ocaml-bench/benches         OCaml micro-benchmarks (incl. 17 effect benchmarks)
-macro-benches/  ocaml-bench/macro-benches   OCaml macro-benchmarks (23 real tools)
-angstrom/       inhabitedtype/angstrom      Parser combinators (no effects; a neutral baseline)
-fiber-c/        wasmfx/fiber-c              Fibers in C, Asyncify vs WasmFX backends
+benchmark/benches/        ocaml-bench/benches         OCaml micro-benchmarks (incl. 17 effect benchmarks)
+benchmark/macro-benches/  ocaml-bench/macro-benches   OCaml macro-benchmarks (23 real tools)
+benchmark/angstrom/       inhabitedtype/angstrom      Parser combinators (no effects; a neutral baseline)
+benchmark/fiber-c/        wasmfx/fiber-c              Fibers in C, Asyncify vs WasmFX backends
 ```
 
 ## Toolchain on this machine
@@ -20,9 +20,10 @@ fiber-c/        wasmfx/fiber-c              Fibers in C, Asyncify vs WasmFX back
 | binaryen | `~/dev_path/binaryen/bin` | v124, has `--enable-stack-switching`. |
 | wasmtime | `~/.wasmtime/bin/wasmtime` | For real timing runs. |
 
-The scripts take these from `WASI_SDK`, `BINARYEN`, `WASM_INTERP` and `WASM_OF_OCAML`
-(environment or a gitignored `build.env`; template `build.env.example`) and stop with a
-message when one is unset — the paths above are this machine's, not defaults.
+All of these are now vendored under `dependencies/` and built by `./build-all.sh`; `source env.sh`
+exposes them as `WASM_INTERP`, `WASM_OF_OCAML_EXE`, `BINARYEN`, `WASI_SDK` (overridable, see
+`build.env.example`). The paths above are where they lived on the machine this document was
+written on.
 
 ### The js_of_ocaml situation
 
@@ -79,7 +80,7 @@ it work:
 
 ```bash
 eval $(opam env)
-./tools/ocaml-refrun.sh benches/multicore/multicore-effects/effect_throughput_perform.ml 200
+./tools/ocaml-refrun.sh benchmark/benches/multicore/multicore-effects/effect_throughput_perform.ml 200
 # 200 iterations took 0.001000
 # 5000.0ns per iteration
 ```
@@ -128,7 +129,7 @@ these live in — leaves an unresolvable import in the final module. Import from
 
 ## Per-repo notes
 
-### `benches/` — the best fit by far
+### `benchmark/benches/` — the best fit by far
 
 196 programs from 117 build scripts; `manifest.yml` is the authoritative
 *(program, script, args)* list. Single files, stdlib only, no vendored
@@ -158,7 +159,7 @@ Also relevant, needing opam packages at build time:
 `with_packages/chameneos`. `simple/` and `simple/stdlib` are effect-free
 baselines for measuring what `--effects=native` costs ordinary code.
 
-### `angstrom/` — a neutral baseline
+### `benchmark/angstrom/` — a neutral baseline
 
 Angstrom uses **no effects at all** (`grep -rn "Effect\." lib/` is empty). Its
 value here is as a control: under `--effects=native` the whole program is
@@ -184,14 +185,14 @@ via `Angstrom.parse_string`, built against the submodule's own
 ```bash
 cd angstrom && dune build lib/angstrom.cma examples/RFC7159.cma && cd ..
 ocamlfind ocamlc -package bigstringaf -linkpkg \
-  -I angstrom/_build/default/lib/.angstrom.objs/byte \
-  -I angstrom/_build/default/examples/.RFC7159.objs/byte \
-  angstrom/_build/default/lib/angstrom.cma \
-  angstrom/_build/default/examples/RFC7159.cma driver.ml -o driver.byte
+  -I benchmark/angstrom/_build/default/lib/.angstrom.objs/byte \
+  -I benchmark/angstrom/_build/default/examples/.RFC7159.objs/byte \
+  benchmark/angstrom/_build/default/lib/angstrom.cma \
+  benchmark/angstrom/_build/default/examples/RFC7159.cma driver.ml -o driver.byte
 EXTRA_RUNTIME=$PWD/tools/bigstringaf_runtime.wat ./tools/ocaml-refrun.sh driver.byte 3
 ```
 
-### `macro-benches/` — not a reference-interpreter target
+### `benchmark/macro-benches/` — not a reference-interpreter target
 
 23 real tools (menhir, coq, frama-c, infer, ocamlformat, …) with every
 dependency vendored via opam-monorepo. `make setup` pulls a duniverse first.
@@ -213,7 +214,7 @@ correctness tests, not measurements.
 Worth noting: `benchmarks/js_of_ocaml/jsoo.build.sh` benchmarks the jsoo
 compiler itself — a curiosity here, given jsoo is the tool being used.
 
-### `fiber-c/` — already reference-interpreter aware, but blocked locally
+### `benchmark/fiber-c/` — already reference-interpreter aware, but blocked locally
 
 **Significant files:**
 

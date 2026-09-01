@@ -17,16 +17,14 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
-# Tool locations come from the environment or <repo>/build.env (template: build.env.example);
-# nothing is guessed.
+# Tools come from env.sh (dependencies/, built by build-all.sh; overridable in the environment).
 # shellcheck disable=SC1091
-[ -f "$HERE/../build.env" ] && . "$HERE/../build.env"
-WOO="${WASM_OF_OCAML:-}"
-BINARYEN_BIN="${BINARYEN_BIN:-${BINARYEN:+$BINARYEN/bin}}"
-WASM="${WASM_INTERP:-}"
-[ -n "$WOO" ] || { echo "WASM_OF_OCAML is not set (wasm_of_ocaml.exe from a js_of_ocaml master build)" >&2; exit 1; }
-[ -n "$BINARYEN_BIN" ] || { echo "BINARYEN is not set (binaryen install root with bin/wasm-merge)" >&2; exit 1; }
-[ -n "$WASM" ] || { echo "WASM_INTERP is not set (the WasmFX reference interpreter binary)" >&2; exit 1; }
+. "$HERE/../env.sh"
+WOO="$WASM_OF_OCAML_EXE"
+BINARYEN_BIN="$BINARYEN/bin"
+WASM="$WASM_INTERP"
+[ -x "$WASM" ] || { echo "reference interpreter not found at $WASM (./build-all.sh --only specfx)" >&2; exit 1; }
+[ -x "$BINARYEN_BIN/wasm-merge" ] || { echo "binaryen wasm-merge not found at $BINARYEN_BIN (./build-all.sh --only binaryen)" >&2; exit 1; }
 OUTDIR="${OUTDIR:-$(mktemp -d)}"
 
 MERGE_FLAGS="--enable-nontrapping-float-to-int --enable-exception-handling \
@@ -37,7 +35,7 @@ MERGE_FLAGS="--enable-nontrapping-float-to-int --enable-exception-handling \
 SRC="$1"; shift
 BASE="$(basename "${SRC%.ml}")"; BASE="${BASE%.byte}"
 
-[ -x "$WOO" ] || { echo "wasm_of_ocaml not found at $WOO (set WASM_OF_OCAML)" >&2; exit 1; }
+[ -x "$WOO" ] || { echo "wasm_of_ocaml not found at $WOO (./build-all.sh --only jsoo)" >&2; exit 1; }
 
 case "$SRC" in
   *.byte)

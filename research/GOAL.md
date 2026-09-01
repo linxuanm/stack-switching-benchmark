@@ -141,10 +141,10 @@ real but separate — [`06-openings.md`](../lit-review/06-openings.md) §4 items
 
 ## 4. Wizard today — the research vehicle
 
-Virgil source under `wizard-engine/`. Stack switching runs in every x86-64 mode (`int`, `jit`,
+Virgil source under `dependencies/wizard-engine/`. Stack switching runs in every x86-64 mode (`int`, `jit`,
 `spc`, `lazy`, `dyn`) on the same stack type and the same allocator; the `v3-int` tier is a
 separate, heap-based build. `--ext:stack-switching` implies `gc` and `exception-handling`
-(`src/engine/Extension.v3:39-42`). `fiber-c/config.yml:15` drives it as
+(`src/engine/Extension.v3:39-42`). `benchmark/fiber-c/config.yml:15` drives it as
 `--ext:stack-switching --ext:gc --stack-size=65536 --mode=jit`.
 
 ### 4.1 The stack object
@@ -351,7 +351,7 @@ the stack code mentions grow, shrink, or bounding the pool.
 
 ## 5. Wasmtime today — the comparison point
 
-Rust source under `wasmtime/`. Full walkthrough in
+Rust source under `dependencies/wasmtime/`. Full walkthrough in
 [`04-runtimes.md`](../lit-review/04-runtimes.md) Part II; what follows is what matters for
 memory, re-verified at `d8a0da6d66`. The implementation was upstreamed from `wasmfx/wasmfxtime`
 in two steps: the runtime in #10388 (2025-06) and the inline Cranelift lowering in #11003
@@ -409,7 +409,7 @@ permissions, then `mprotect`s everything above the lowest page `READ|WRITE`. So:
   (`vm/gc/gc_ref.rs:466`), `Val::ContRef` rejected by the embedder API, contrefs in struct
   fields `TODO(#10248)`. There is no collector that could reclaim a dropped `cont`.
 - The `Trap::StackOverflow`-style pooling limits (`total_stacks`) bound **async fibers only**.
-  `fiber-c/config.yml:6` passes `total-stacks=<STACK_POOL_SIZE>` (10 000 for `c10m`, 2 000 for
+  `benchmark/fiber-c/config.yml:6` passes `total-stacks=<STACK_POOL_SIZE>` (10 000 for `c10m`, 2 000 for
   `sieve`, 6 for `skynet`) — that configuration was written for the `wasmfxtime` fork, whose
   continuation pool was never upstreamed. On upstream at this commit it does not affect
   continuations.
@@ -720,9 +720,9 @@ categories separately ([`01-background.md`](../lit-review/01-background.md) §1)
 **Workloads.** (a) A new "park *N* continuations at depth *d*" microbenchmark, in C via
 `fiber-c` so it runs on every engine, and in OCaml via `wasm_of_ocaml --effects=native`.
 (b) `benchfx`: `c10m`, `sieve`, `skynet`, `state`, `suspend_resume`, `scheduler`, plus the
-`*_switch` variants. (c) `benches/multicore/multicore-effects/` — `effect_throughput_*`
+`*_switch` variants. (c) `benchmark/benches/multicore/multicore-effects/` — `effect_throughput_*`
 (one-shot tail and zero-shot), `algorithmic_differentiation` (one-shot non-tail through deep
-handlers), `eratosthenes` (dynamically-shaped handler stack) — and `macro-benches/` for a
+handlers), `eratosthenes` (dynamically-shaped handler stack) — and `benchmark/macro-benches/` for a
 no-continuations control. The OCaml suites currently run only on the reference interpreter
 ([`../RUNNING.md`](../RUNNING.md)); getting `wasm_of_ocaml` output onto Wizard (GC + `try_table`
 + stack switching, and a host shim for its imports) is an early task, not an assumption.
@@ -769,7 +769,7 @@ virtual and its switch costs ~1 900× native.
 ## Appendix A — where the code is
 
 ```
-wizard-engine/ (4a539337)
+dependencies/wizard-engine/ (4a539337)
   src/engine/x86-64/X86_64Stack.v3        :9    class X86_64Stack (layout, ctor, scan, stubs)
                                           :1007 component X86_64StackManager (pool)
                                           :864  return-parent stub recycles into cache
@@ -784,7 +784,7 @@ wizard-engine/ (4a539337)
   src/engine/x86-64/{Mmap,Redzones,X86_64Frames}.v3
   test/unittest/CompressionTest.v3 · test/regress/ext:stack-switching/many_stacks.wast
 
-wasmtime/ (d8a0da6d66)
+dependencies/wasmtime/ (d8a0da6d66)
   crates/wasmtime/src/runtime/store.rs                       :2133 allocate_continuation; :466 continuations Vec
   crates/wasmtime/src/runtime/vm/stack_switching.rs          :204 VMContRef; :313 cont_new
   crates/wasmtime/src/runtime/vm/stack_switching/stack/unix.rs :89 mmap; :1-59 layout
@@ -794,7 +794,7 @@ wasmtime/ (d8a0da6d66)
   cranelift/codegen/src/isa/x64/inst/{stack_switch.rs,emit.rs:550}
   crates/wasmtime/src/config.rs                              :301 async_stack_size; :2705 inlining refusal
 
-fiber-c/config.yml                        engine flags for benchfx
+benchmark/fiber-c/config.yml                        engine flags for benchfx
 ```
 
 ## Appendix B — sources

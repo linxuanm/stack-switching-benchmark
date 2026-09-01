@@ -1,17 +1,14 @@
 #!/usr/bin/env bash
 # Build one fiber-c benchmark (wasmfx backend) outside the submodule tree.
-# Mirrors fiber-c/Makefile rules out/%_wasmfx.wasm and out/%_switch_wasmfx.wasm.
+# Mirrors benchmark/fiber-c/Makefile rules out/%_wasmfx.wasm and out/%_switch_wasmfx.wasm.
 # Usage: build-fiber-c.sh <name>      e.g. itersum  or  itersum_switch
 set -euo pipefail
 NAME=$1
 REPO="${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-FIBER=$REPO/fiber-c
+FIBER=$REPO/benchmark/fiber-c
 OUT=${OUT:-$(dirname "$0")/fiber-c-build}
 # shellcheck disable=SC1091
-[ -f "$REPO/build.env" ] && . "$REPO/build.env"
-: "${WASI_SDK:?WASI_SDK is not set (wasi-sdk 22 install root; environment or $REPO/build.env)}"
-: "${BINARYEN:?BINARYEN is not set (binaryen install root; environment or $REPO/build.env)}"
-: "${WASM_INTERP:?WASM_INTERP is not set (WasmFX reference interpreter binary; environment or $REPO/build.env)}"
+. "$REPO/env.sh"        # WASI_SDK, BINARYEN, WASM_INTERP -> dependencies/ (overridable)
 WASICC=$WASI_SDK/bin/clang
 SHADOW_STACK_FLAG=-DFIBER_WASMFX_PRESERVE_SHADOW_STACK        # make.config: WASMFX_PRESERVE_SHADOW_STACK=1
 CAP=-DWASMFX_CONT_TABLE_INITIAL_CAPACITY=1024                 # make.config default
@@ -32,7 +29,7 @@ $WASM_INTERP -d -i $OUT/$IMPMOD.wat -o $OUT/$IMPMOD.wasm
 $WASICC $SHADOW_STACK_FLAG $SS $CAP -Wl,--export-table,--export-memory,--export=__stack_pointer $IMPL $WASI_FLAGS $FIBER/examples/$NAME.c -o $OUT/${NAME}_wasmfx.pre.wasm
 # 4. merge (shim first, exactly as the Makefile does)
 $BINARYEN/bin/wasm-merge $BINARYEN_FLAGS --enable-multimemory $OUT/$IMPMOD.wasm "$IMPMOD" $OUT/${NAME}_wasmfx.pre.wasm "main" -o $OUT/${NAME}_wasmfx.unopt.wasm
-# 5. optimize -- only for non-switch modules, exactly as fiber-c/Makefile does (its out/%_switch_wasmfx.wasm rule
+# 5. optimize -- only for non-switch modules, exactly as benchmark/fiber-c/Makefile does (its out/%_switch_wasmfx.wasm rule
 #    stops after wasm-merge; binaryen v124's -O2 also asserts on any module containing `switch`)
 if [[ $NAME == *_switch ]]; then
   cp $OUT/${NAME}_wasmfx.unopt.wasm $OUT/${NAME}_wasmfx.wasm

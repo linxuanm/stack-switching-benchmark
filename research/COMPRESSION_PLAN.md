@@ -65,9 +65,9 @@ the untouched part of a mapping; *right-sizing* means choosing the reservation.
 
 ### 1.1 The stack today (unchanged from GOAL.md §4)
 
-`X86_64Stack` (`wizard-engine/src/engine/x86-64/X86_64Stack.v3:9-42`): one anonymous private
+`X86_64Stack` (`dependencies/wizard-engine/src/engine/x86-64/X86_64Stack.v3:9-42`): one anonymous private
 mapping per stack (`Mmap.v3:11-25`), size `EngineOptions.STACK_SIZE` (512 KiB default,
-`EngineOptions.v3:8-9`; 64 KiB in `fiber-c/config.yml`), one guard page `mprotect`ed at the
+`EngineOptions.v3:8-9`; 64 KiB in `benchmark/fiber-c/config.yml`), one guard page `mprotect`ed at the
 middle so that the tagged value stack grows up from the start and native frames grow down from
 the end (`X86_64Stack.v3:31-37`, diagram at `:975-1004`). Consequences that matter here:
 **three VMAs per stack** (values / guard / frames), a **fixed 50/50 split**, and a per-value cost
@@ -851,6 +851,6 @@ Primary sources read for this plan (beyond the lit-review notes, whose bibliogra
 - Hieb, Dybvig & Bruggeman 1990; Bruggeman, Waddell & Dybvig 1996 (segments, underflow frames,
   one-shot) — via lit-review 01 §6.
 - This repo: [`GOAL.md`](GOAL.md), [`COMPILER_DIFF.md`](COMPILER_DIFF.md), [`../lit-review/`](../lit-review/),
-  `wizard-engine/src/engine/compression/`, `wizard-engine/src/engine/x86-64/X86_64Stack.v3`,
-  `wizard-engine/test/regress/ext:stack-switching/many_stacks*.wast`, `fiber-c/examples/`,
-  `benches/with_packages/test_sched/`, `~/workspace/benchfx/` (bespoke baselines, harness).
+  `dependencies/wizard-engine/src/engine/compression/`, `dependencies/wizard-engine/src/engine/x86-64/X86_64Stack.v3`,
+  `dependencies/wizard-engine/test/regress/ext:stack-switching/many_stacks*.wast`, `benchmark/fiber-c/examples/`,
+  `benchmark/benches/with_packages/test_sched/`, `~/workspace/benchfx/` (bespoke baselines, harness).

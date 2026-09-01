@@ -188,8 +188,8 @@ larger inline sequence (≈100–120 instructions vs ≈50).
 
 ```bash
 P=/usr/lib/linux-tools-5.15.0-190/perf     # the /usr/bin/perf wrapper is broken on this kernel
-WZ="wizard-engine/bin/wizeng.x86-64-linux --ext:all --stack-size=65536 --mode=jit"
-WT="wasmtime/target/release/wasmtime run --profile perfmap -W=exceptions,function-references,gc,stack-switching,tail-call"
+WZ="dependencies/wizard-engine/bin/wizeng.x86-64-linux --ext:all --stack-size=65536 --mode=jit"
+WT="dependencies/wasmtime/target/release/wasmtime run --profile perfmap -W=exceptions,function-references,gc,stack-switching,tail-call"
 
 # address map for JIT bucketing (deterministic with ASLR off), then record + bucket
 setarch x86_64 -R timeout 5 $WZ -tk --colors=false microbench/wasm/state_wasmfx.wasm 2>/dev/null \

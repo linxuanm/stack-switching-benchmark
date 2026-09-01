@@ -81,11 +81,11 @@ continuations. Details in [04-runtimes.md](04-runtimes.md).
 
 ## How this connects to the repo
 
-- **`fiber-c/`** is not merely similar to the Wasm benchmarking effort — it *is* the source
+- **`benchmark/fiber-c/`** is not merely similar to the Wasm benchmarking effort — it *is* the source
   language of [`benchfx`](https://github.com/wasmfx/benchfx), the suite described in
   [02-benchmarking.md](02-benchmarking.md) §2. Its `examples/*.c` are the microbenchmarks whose
   numbers appear in [03-wasm-stack-switching.md](03-wasm-stack-switching.md) §4.
-- **`benches/multicore/multicore-effects/`** maps onto the four-way resumption taxonomy in
+- **`benchmark/benches/multicore/multicore-effects/`** maps onto the four-way resumption taxonomy in
   [01-background.md](01-background.md) §1 — see the table there. It is the OCaml-side
   counterpart to `benchfx`.
 - **The measurement gap is directly actionable here.** Both suites in this repo run on the

@@ -19,7 +19,7 @@ reverse. **If you publish numbers, report per-category, not just a geomean.**
 
 ### Where this repo's benchmarks land
 
-| Program (`benches/multicore/multicore-effects/`) | Category |
+| Program (`benchmark/benches/multicore/multicore-effects/`) | Category |
 |---|---|
 | `effect_throughput_val.ml` | handler installed, never performed — measures frame setup/teardown only |
 | `effect_throughput_perform.ml` | one-shot, tail (perform → `continue k` immediately) |

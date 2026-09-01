@@ -3,8 +3,7 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck disable=SC1091
-[ -f "$HERE/../../build.env" ] && . "$HERE/../../build.env"
-: "${WASM_INTERP:?WASM_INTERP is not set (WasmFX reference interpreter binary; environment or <repo>/build.env)}"
+. "$HERE/../../env.sh"  # WASM_INTERP -> dependencies/specfx (overridable)
 N=$1; OUT=pingpong_$N
 sed -e 's/(func \$main (export "main") (param \$n i32) (result i32)/(func $run (param $n i32) (result i32)/' \
     -e "s/(elem declare func \$producer \$consumer)/(elem declare func \$producer \$consumer)\n  (func (export \"main\") (result i32) (call \$run (i32.const $N)))/" pingpong.wat > $OUT.wat

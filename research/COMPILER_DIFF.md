@@ -3,7 +3,7 @@
 **Version 2 — 2026-08-31.** V1 (§0–6) was checked by an independent verification pass against the
 pinned sources and the raw listings (108 claims; 13 wrong or imprecise, all corrected — §8);
 V2 adds §7 (adapting Wizard) and §8. Scope: the **compiler tier only** — Wizard's single-pass compiler
-(`--mode=spc` / `--mode=jit`, `wizard-engine/src/engine/compiler/SinglePassCompiler.v3` +
+(`--mode=spc` / `--mode=jit`, `dependencies/wizard-engine/src/engine/compiler/SinglePassCompiler.v3` +
 `src/engine/x86-64/`) against Wasmtime's Cranelift backend (the only Wasmtime tier that
 implements stack switching; Winch and Pulley do not). Interpreter tiers are out of scope except
 where a bug forced a fallback. Pinned submodules: Wizard `4a539337`, Wasmtime `d8a0da6d66`.
@@ -254,7 +254,7 @@ fat-pointer construct. It is the only one of the four that leaves compiled code.
 | Register state at the switch | all live slots + tags spilled by SPC before the call; everything reloaded after | regalloc2 spills only what is live across `stack_switch` (which clobbers all but `rdi`) |
 | Trap delivery from the op | return-address rewrite to the unwind stub | `trapz`/`trapnz` → `ud2` sites in the same function |
 | State written per `resume` | 3 states + 2 links + `vsp`/`rsp` of both stacks | 2 states, 2×(2-word chain) + 2×4 limit words + handler list (≥4 words) + payload length |
-| Stack for a fresh continuation | from a free list refilled 8 at a time (`StackTuning.stackCacheSize`), 512 KiB default (64 KiB in `fiber-c/config.yml`) | `mmap` 2 MiB + 4 KiB guard per `cont.new`, kept until the store is dropped |
+| Stack for a fresh continuation | from a free list refilled 8 at a time (`StackTuning.stackCacheSize`), 512 KiB default (64 KiB in `benchmark/fiber-c/config.yml`) | `mmap` 2 MiB + 4 KiB guard per `cont.new`, kept until the store is dropped |
 | Static size of the sequence (this workload) | resume 51–55, suspend 26–28, switch 27 (+ runtime) | resume 102–119 (+30 return path), suspend 51 (+4–7), switch 138–140 (+13–14) |
 | Dynamic instructions per op | resume ≈ 55–70 (inline; static count, not measured); suspend 1 563–1 840 measured + ≈30; switch 1 601 measured + ≈30 | ≈ static counts; the search loops iterate once here |
 
@@ -265,8 +265,8 @@ fat-pointer construct. It is the only one of the four that leaves compiled code.
 ### 2.1 What is in the repo
 
 The only programs in this repository that contain all three opcodes are the **fiber-c `*_switch`
-benchmarks** (`fiber-c/examples/{hello,itersum,treesum,pi,scheduler}_switch.c`). Their C code calls a
-tiny Wasm shim, `fiber-c/src/wasmfx/imports_switch.wat.pp`, that `wasm-merge` fuses into every
+benchmarks** (`benchmark/fiber-c/examples/{hello,itersum,treesum,pi,scheduler}_switch.c`). Their C code calls a
+tiny Wasm shim, `benchmark/fiber-c/src/wasmfx/imports_switch.wat.pp`, that `wasm-merge` fuses into every
 `*_switch_wasmfx.wasm`; the shim is where the opcodes live:
 
 | Shim function | Instructions | Role |
@@ -282,7 +282,7 @@ from `argv[1]` through WASI. The non-switch sibling `itersum` (`examples/itersum
 `src/wasmfx/imports.wat.pp`, `$indexed_resume` = one `resume`, `$suspend` = one `suspend`) is the
 matching `resume`/`suspend`-only workload and is used below for that pair's timing.
 
-The OCaml suites (`benches/`, `macro-benches/`, `angstrom/`) go through `wasm_of_ocaml
+The OCaml suites (`benchmark/benches/`, `benchmark/macro-benches/`, `benchmark/angstrom/`) go through `wasm_of_ocaml
 --effects=native`, whose runtime (`~/workspace/js_of_ocaml/runtime/wasm/effect-native.wat`) uses
 `cont.new`/`resume`/`suspend` but never `switch`, so they cannot serve here.
 
@@ -311,7 +311,7 @@ binaryen. At the pinned commits that pipeline produces a module **neither engine
    Fix without touching the
    instruction: **declare `$cancel` first** so it becomes tag 0 — `E4 09 00 00` decodes
    identically under both orders (`compiler-diff/fiber_switch_wasmfx_imports.tagreorder.wat`).
-3. **binaryen cannot optimize a module that contains `switch`.** `fiber-c/Makefile` never runs
+3. **binaryen cannot optimize a module that contains `switch`.** `benchmark/fiber-c/Makefile` never runs
    `wasm-opt` on `*_switch` modules (`Makefile:50-53`: clang → `wasm-merge` → done; only the
    non-switch rule at `:46-47` applies `-O2 -g`). The first version of `build-fiber-c.sh` applied
    `-O2` to both, and binaryen v124 asserted on the switch module
@@ -331,7 +331,7 @@ happens before the crash, and the same sequences appear in the distilled module.
 
 ### 2.3 Building the fiber-c modules
 
-`compiler-diff/build-fiber-c.sh <name>` replays `fiber-c/Makefile`'s `out/%_wasmfx.wasm` /
+`compiler-diff/build-fiber-c.sh <name>` replays `benchmark/fiber-c/Makefile`'s `out/%_wasmfx.wasm` /
 `out/%_switch_wasmfx.wasm` rules outside the submodule tree, with the tools that exist on this
 machine (wasi-sdk 22 from `~/workspace/benchfx/tools/wasi-sdk/wasi-sdk-22.0`, binaryen v124 at
 `~/dev_path/binaryen`, the reference interpreter at `~/.opam/default/bin/wasm`), the same flags
@@ -378,12 +378,12 @@ overflowed sum Wasmtime prints).
 ### 2.5 Running
 
 ```bash
-WT=wasmtime/target/release/wasmtime          # built from the submodule with cargo +1.98.0
-WZ=wizard-engine/bin/wizeng.x86-64-linux     # ./build.sh wizeng x86-64-linux
+WT=dependencies/wasmtime/target/release/wasmtime          # built from the submodule with cargo +1.98.0
+WZ=dependencies/wizard-engine/bin/wizeng.x86-64-linux     # ./build.sh wizeng x86-64-linux
 F=-W=exceptions,function-references,gc,stack-switching
 $WT run $F itersum_wasmfx.wasm 10000000                       # fiber-c, WASI argv
 $WT run $F --invoke main pingpong_10000000.wasm
-$WZ --ext:stack-switching --ext:gc --stack-size=65536 --mode=spc itersum_wasmfx.wasm 10000000   # fiber-c/config.yml flags, spc = no interpreter fallback
+$WZ --ext:stack-switching --ext:gc --stack-size=65536 --mode=spc itersum_wasmfx.wasm 10000000   # benchmark/fiber-c/config.yml flags, spc = no interpreter fallback
 $WZ --ext:stack-switching --mode=spc pingpong_10000000.wasm
 ```
 
@@ -872,7 +872,7 @@ $WT objdump --addresses --bytes --addrmap=true --traps=true itersum_switch_wasmf
 
 `--addrmap=true` interleaves the Wasm code offset each instruction came from, which is how the
 `resume` at Wasm offset `0x37e` was delimited inside the trampoline. `opt-level=2` is what
-`fiber-c/Makefile` uses for its `.cwasm`s and is Wasmtime's default; `wasmtime run` on the
+`benchmark/fiber-c/Makefile` uses for its `.cwasm`s and is Wasmtime's default; `wasmtime run` on the
 `.cwasm` (`--allow-precompiled`) gives the same results as on the `.wasm`. The CLIF per function
 (`compiler-diff/*.clif`) is what the annotations were derived from.
 
@@ -883,7 +883,7 @@ $WT objdump --addresses --bytes --addrmap=true --traps=true itersum_switch_wasmf
 1. **Opcode numbering skew between the toolchain and the engines** (§2.2 item 1). The repo's
    reference interpreter and binaryen predate the renumbering that added `resume_throw_ref`;
    both engines pinned here use the new numbers. Any `switch` assembled by this toolchain is
-   silently misread as `resume_throw_ref` by both engines. Affects: every `fiber-c/*_switch`
+   silently misread as `resume_throw_ref` by both engines. Affects: every `benchmark/fiber-c/*_switch`
    build, `RUNNING.md`'s pipeline for anything using `switch`.
 2. **Wizard validator: `resume_throw` immediate order** (`src/engine/CodeValidator.v3:1290-1305`
    vs `src/engine/BytecodeIterator.v3:785`). Upstream bug; a module is accepted only if its
@@ -1130,7 +1130,7 @@ sources and the raw listings (108 items). Corrected in V2:
 
 1. `stack_switch` is **ten** instructions (eight `mov`s, `lea`, `jmp`), not eight; it clobbers
    every register **except `rdi`**.
-2. `fiber-c/Makefile` never runs `wasm-opt` on `*_switch` modules; the binaryen assertion was
+2. `benchmark/fiber-c/Makefile` never runs `wasm-opt` on `*_switch` modules; the binaryen assertion was
    triggered by an extra `-O2` step in the first `build-fiber-c.sh` (now mirrors the Makefile).
 3. Mode descriptions are at `X86_64Target.v3:27-28`; the CLIF region for the stack chain in the
    pingpong file is `region4`; `wasm_of_ocaml`'s native-effects runtime is `effect-native.wat`;

@@ -24,19 +24,26 @@ That is the gap this repo aims at. Background: [`lit-review/README.md`](lit-revi
 | `lit-review/` | Condensed literature notes (7 files, ~12k words), from `../fx-research` | ours |
 | `tools/` | Pipeline for running OCaml→Wasm on the reference interpreter | ours |
 | `RUNNING.md` | How each suite runs on the reference interpreter, with per-repo status | ours |
-| `wizard-engine/` | **The research vehicle.** Titzer's Wizard engine, in Virgil | submodule, upstream |
-| `wasmtime/` | Reference implementation to compare against, in Rust | submodule, upstream |
-| `fiber-c/` | C fiber library — Asyncify vs WasmFX backends. **This is the source language of [`benchfx`](https://github.com/wasmfx/benchfx)** | submodule, upstream |
-| `benches/` | OCaml micro-benchmarks; `multicore/multicore-effects/` is the effects set | submodule, upstream |
-| `macro-benches/` | OCaml macro-benchmarks, 23 vendored real tools | submodule, upstream |
-| `angstrom/` | Parser combinators. Uses **no effects** — a baseline for what the stack-switching calling convention costs ordinary code | submodule, upstream |
+| `benchmark/fiber-c/` | C fiber library — Asyncify vs WasmFX backends. **This is the source language of [`benchfx`](https://github.com/wasmfx/benchfx)** | submodule, upstream |
+| `benchmark/benches/` | OCaml micro-benchmarks; `multicore/multicore-effects/` is the effects set | submodule, upstream |
+| `benchmark/macro-benches/` | OCaml macro-benchmarks, 23 vendored real tools | submodule, upstream |
+| `benchmark/angstrom/` | Parser combinators. Uses **no effects** — a baseline for what the stack-switching calling convention costs ordinary code | submodule, upstream |
+| `dependencies/wizard-engine/` | **The research vehicle.** Titzer's Wizard engine, in Virgil | submodule, upstream |
+| `dependencies/wasmtime/` | Reference implementation to compare against, in Rust | submodule, upstream |
+| `dependencies/virgil/` | The Virgil compiler, for building Wizard (a stable binary is checked in upstream) | submodule, upstream |
+| `dependencies/specfx/` | The WasmFX-merged reference interpreter (`interpreter/wasm`) | submodule, upstream |
+| `dependencies/binaryen/` | binaryen `version_124` (`wasm-merge`, `wasm-opt`, …), built into `dependencies/binaryen-build/` | submodule, upstream |
+| `dependencies/js_of_ocaml/` | js_of_ocaml master, for `wasm_of_ocaml.exe` | submodule, upstream |
+| `dependencies/wasi-sdk/`, `dependencies/ocaml/` | wasi-sdk 22 (downloaded) and the local opam switch — created by `build-all.sh`, gitignored | generated |
+| `env.sh`, `build-all.sh` | The environment (every tool variable → `dependencies/`) and the single build entry point | ours |
+| `microbench/` | Our harness: built `.wasm` modules, results, build intermediates (all gitignored) | ours |
 
 **Submodules are upstream repos.** Do not commit into them; do not push them. If a change is
 needed there, say so rather than editing in place.
 
 ## Where the research actually bites
 
-### Wizard (`wizard-engine/`, Virgil)
+### Wizard (`dependencies/wizard-engine/`, Virgil)
 
 Supports stack-switching in **every tier** (load, v3-int, fast-int, spc) — which is why it is the
 vehicle. Wasmtime supports it in one tier, off by default, x86-64 Linux only.
@@ -57,10 +64,10 @@ and returning them to a free list. That is the optimization the literature value
 **That is the compression opportunity, and it is exactly the axis the literature leaves open.**
 
 Virgil is installed at `~/workspace/virgil` (`v3c`, `virgil` on PATH). Build with
-`wizard-engine/build.sh`. `fiber-c/config.yml` already drives Wizard as a benchmark engine with
+`dependencies/wizard-engine/build.sh`. `benchmark/fiber-c/config.yml` already drives Wizard as a benchmark engine with
 `--ext:stack-switching --ext:gc --stack-size=65536 --mode=jit`.
 
-### Wasmtime (`wasmtime/`, Rust)
+### Wasmtime (`dependencies/wasmtime/`, Rust)
 
 The comparison point, and a cautionary one. Walkthrough in
 [`lit-review/04-runtimes.md`](lit-review/04-runtimes.md) Part II. The short version: codegen is
@@ -73,27 +80,26 @@ async fiber stacks, and is simply not wired up.
 So the two engines fail in opposite directions: **Wizard pools but does not size; Wasmtime neither
 pools nor frees.**
 
-## Toolchain on this machine
+## Toolchain
 
-| Tool | Location | Notes |
-|---|---|---|
-| `wasm` | `~/.opam/default/bin/wasm` → `~/workspace/specfx/interpreter` | Reports `wasm 3.0.0`. The **WasmFX-merged spec repo** — `cont.new`/`resume`/`suspend`/`switch` are always on, no feature flag |
-| `wasm_of_ocaml` | `~/workspace/js_of_ocaml/_build/default/compiler/bin-wasm_of_ocaml/wasm_of_ocaml.exe` | Built from **master** (`27e40dda`) |
-| binaryen | `~/dev_path/binaryen/bin` | v124, has `--enable-stack-switching` |
-| wasmtime | `~/.wasmtime/bin/wasmtime` | For runs where timing has to be real |
-| Virgil | `~/workspace/virgil/bin` | For building Wizard |
+Everything lives under `dependencies/` and is built by `./build-all.sh`; `source env.sh` puts it
+in a shell (`WIZENG`, `WASMTIME`, `V3C`/`VIRGIL_LOC`, `WASI_SDK`, `BINARYEN`, `WASM_INTERP`,
+`WASM_OF_OCAML_EXE`, `OCAML_SWITCH`, `RUST_TOOLCHAIN`, plus `PATH` and the opam switch). Every
+script sources it itself. Pinned: Virgil `bb8956d0a`, specfx `15ec7d15` (reports `wasm 3.0.0`;
+`cont.new`/`resume`/`suspend`/`switch` always on, no feature flag), binaryen `version_124`,
+js_of_ocaml master `27e40dda`, wasi-sdk 22, OCaml 5.4.0 in a local opam switch with pinned
+dune/menhir/ppxlib/sedlex/cmdliner/yojson/ocamlfind. Host prerequisites: git, curl, python3,
+rustup, opam, cmake and a C++ compiler.
 
-**js_of_ocaml caveat.** The opam switch still pins `js_of_ocaml*` to a `#native-effects` branch.
-A pin names a branch, so it is unaffected by which branch is checked out — but that branch emits
-*legacy* exception handling, which the reference interpreter rejects (`decoding error: illegal
-opcode 06`). Master emits `try_table` and adds `--effects=native`. **Always use the built
-`wasm_of_ocaml.exe`** — point `WASM_OF_OCAML` at it.
+**Overrides, never guesses.** A tool variable that is already set (shell, or the gitignored
+`build.env` — template `build.env.example`) is used as-is and `build-all.sh` skips building that
+dependency. A missing tool stops a step with a message naming the variable and the step that
+builds it.
 
-**The scripts do not assume any of these locations.** `build-all.sh`, `tools/ocaml-refrun.sh`,
-`microbench/build-ocaml.sh` and the `research/compiler-diff/` scripts take `WASI_SDK`,
-`BINARYEN`, `WASM_INTERP` and `WASM_OF_OCAML` from the environment or from a gitignored
-`build.env` at the repo root (template: `build.env.example`), and stop with a message naming the
-variable when one is unset. The table above is where they point on this machine, nothing more.
+**js_of_ocaml caveat.** Released js_of_ocaml (and its `#native-effects` branch) emit *legacy*
+exception handling, which the reference interpreter rejects (`decoding error: illegal opcode
+06`). Master emits `try_table` and adds `--effects=native` — which is why it is vendored and
+built from source, and why `WASM_OF_OCAML_EXE` must point at that build.
 
 ## Reference-interpreter gotchas
 
@@ -121,17 +127,17 @@ correct; measure on Wizard, wasmtime, or d8.
 
 ## Running things
 
-The benchmark pipeline, from a fresh clone: `./build-all.sh` (engines + every wasm module;
-see its header for the tool locations it needs), then `./run-wizard.sh --repeat 5` /
-`./run-wasmtime.sh --repeat 5` for timings (shared driver `bench-common.sh`, wasm dir
-`microbench/wasm/`), and `./runtime-compare.sh` for the perf-based "where the time goes"
-tables of `research/FIBER_C_COMPARE.md`. Details in `microbench/README.md`.
+The benchmark pipeline, from a fresh clone: `./build-all.sh` (builds `dependencies/` and every
+wasm module — ~30 min the first time, mostly wasmtime, binaryen and the opam switch), then
+`./run-wizard.sh --repeat 5` / `./run-wasmtime.sh --repeat 5` for timings (shared driver
+`bench-common.sh`, wasm dir `microbench/wasm/`), and `./runtime-compare.sh` for the perf-based
+"where the time goes" tables of `research/FIBER_C_COMPARE.md`. Details in `microbench/README.md`.
+For interactive use, `source env.sh`.
 
 Single OCaml programs on the reference interpreter:
 
 ```bash
-eval $(opam env)
-./tools/ocaml-refrun.sh benches/multicore/multicore-effects/effect_throughput_perform.ml 200
+./tools/ocaml-refrun.sh benchmark/benches/multicore/multicore-effects/effect_throughput_perform.ml 200
 ```
 
 Pass **explicit small arguments**. Every benchmark takes its size from `Sys.argv.(1)` and falls

@@ -116,7 +116,7 @@ captures the current fiber.
 
 Read from `bytecodealliance/wasmtime` at commit **`83d1cf7`**; line references are to that
 commit, and the two load-bearing ones below (`store.rs:2137`, `config.rs:301`) were re-checked
-against the `wasmtime/` submodule's pinned commit `d8a0da6d66` and still hold.
+against the `dependencies/wasmtime/` submodule's pinned commit `d8a0da6d66` and still hold.
 
 **Bottom line:** the instruction set is fully implemented and tested for x86-64 Linux under
 Cranelift, and the code generation is genuinely good — the whole switch lowers to one three-word
