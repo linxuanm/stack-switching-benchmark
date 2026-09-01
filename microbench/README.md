@@ -50,8 +50,10 @@ then assembling and patching as in `research/compiler-diff/mk-pingpong.sh`.
   fiber-c switch module; the interpreter runs it. `research/COMPILER_DIFF.md` §5.4.
 - **`skynet` and `c10m` on Wasmtime** die with `Cannot allocate memory (os error 12)`: upstream
   Wasmtime `mmap`s a fresh 2 MiB + guard stack per `cont.new` and never frees or pools any
-  (`research/GOAL.md` §5), so millions of `cont.new`s exhaust mappings. Reducing
-  `-W async-stack-size` does not help — the mapping *count* is what runs out.
+  (`research/GOAL.md` §5), so millions of `cont.new`s exhaust mappings: each stack is two VMAs
+  (guard + `RW`), and the 32 702nd `mmap` fails against `vm.max_map_count` = 65 530 (`skynet`
+  at 0.21 s, `c10m` at 0.30 s). Reducing `-W async-stack-size` does not help — the mapping
+  *count* is what runs out.
 
 ## OCaml benchmarks (`benches/multicore/multicore-effects/` via `wasm_of_ocaml`)
 

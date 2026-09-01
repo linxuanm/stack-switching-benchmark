@@ -30,13 +30,33 @@ that answers it, the unit both engines execute once per `fiber_yield`.
 | `itersum 5M` | 5.0 M | 0.07 s | 0.88–0.99 s | **≈13×** | 14 → 184 | 904 → 137 259 | 18.7 MB → 550 MB |
 | `state` (10 M get/put loop) | 30 M | 0.42 s | 4.5–5.2 s | **≈12×** | 14 → 166 | 880 → 179 319 | 17.7 MB → 719 MB |
 | `treesum 4` (2²⁵ leaf yields + tree recursion) | 33.5 M | 1.08 s | 5.6–6.4 s | **≈5.7×** | 32 → 185 | 901 → 179 322 | 18.9 MB → 718 MB |
-| `c10m` (10 M conns: 2 resumes + 1 yield + 1 fiber_alloc each) | 10 M conns | FAIL (ENOMEM) | 6.9 s (this session) | — | — → ≈690/conn | — → 338 802 | — → 926 MB |
-| `sieve 2000`, `skynet` | — | (sieve ≈2.8× in the harness) | — | — | profiled below | | |
+| `c10m` (10 M conns: 2 resumes + 1 yield + 1 fiber_alloc each) | 10 M conns | FAIL (ENOMEM after ≈32.7 k `cont.new`, 0.30 s) | 6.9 s (this session) | — | — → ≈690/conn | — → 338 802 | — → 926 MB |
+| `sieve 2000` (2 000 filter fibers; every candidate walks the chain until a divisor) | 2.04 M | 0.07–0.11 s | 0.45–0.61 s | **≈6×** | ≈40 → ≈245 | 6 708 → 64 423 | 41.5 MB → 259 MB |
+| `skynet` (1.11 M fibers: alloc + resume each; the 1 M leaves also yield + resume) | 1.0 M (+1.11 M fiber_alloc) | FAIL (ENOMEM after ≈32.7 k `cont.new`, 0.21 s) | 0.45–0.51 s | — | — → ≈430/fiber | — → 99 384 | — → 399 MB |
 
 Two immediate observations before any profile: Wizard's per-pair cost is **165–185 ns across
 three very different benchmarks** (the switch machinery is a constant tax, matching
-COMPILER_DIFF §3's 179 ns), and Wizard takes **150–375× more page faults and ~30–40× more
-memory** — the switch path allocates.
+COMPILER_DIFF §3's 179 ns; `sieve`'s ≈245 ns also carries a division and two table lookups in
+C per hop, plus startup on a 0.5 s run), and Wizard takes **10–375× more page faults and
+~6–40× more memory** — the switch path allocates.
+
+Notes on the rows:
+
+- `sieve 2000`'s pair count is exact: 2 042 625 resume/yield hops for the 2 000 primes up to
+  17 389 (a candidate visits filters until one divides it), plus 2 000 final resumes that let
+  the filters return. Both engines print the same 10 575-byte prime list. The harness's `sieve
+  500` (≈2.8×) is startup-dominated: 0.03 s vs 0.09 s.
+- `skynet` creates Σ₁⁶ 10ᵏ = 1 111 110 fibers with at most six alive; only the 10⁶ leaves
+  yield. Wizard's ≈430 ns/fiber covers `fiber_alloc` + resume (+ yield + resume for leaves) +
+  `fiber_free`, at a steady 399 MB / 99 384 faults for the 0.47 s run.
+- **Wasmtime's `Cannot allocate memory (os error 12)` on `skynet` and `c10m` is the mapping
+  count, not RAM.** Every `cont.new` `mmap`s 2 MiB + 4 KiB (`PROT_NONE`, then `mprotect` the
+  2 MiB `RW`), so each stack is two VMAs, and `Store::allocate_continuation` keeps them all until
+  the store drops. `strace` shows the 32 702nd stack `mmap` failing: 2 × 32 702 + ~120 base
+  mappings = `vm.max_map_count` (65 530 on this host). `skynet` dies at 0.21 s / 161 MB and
+  `c10m` at 0.30 s / 281 MB, both far from memory pressure; a smaller `async-stack-size` cannot
+  help. Both would run once returned stacks are unmapped or pooled (`lit-review/04-runtimes.md`
+  Part II; the async-fiber stack pool one directory over is the obvious donor).
 
 ## 2. Method
 
