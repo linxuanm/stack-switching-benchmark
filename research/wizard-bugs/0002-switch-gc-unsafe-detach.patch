@@ -1,0 +1,25 @@
+diff --git a/src/engine/x86-64/X86_64Runtime.v3 b/src/engine/x86-64/X86_64Runtime.v3
+index 96503480..e26a3b34 100644
+--- a/src/engine/x86-64/X86_64Runtime.v3
++++ b/src/engine/x86-64/X86_64Runtime.v3
+@@ -202,12 +202,18 @@ component X86_64Runtime {
+ 		bottom.parent = prev.parent;
+ 		bottom.parent_rsp_ptr.store<Pointer>(prev.parent_rsp_ptr.load<Pointer>());
+ 		// set up new stack configuration
+-		prev.parent = null;
+-		prev.parent_rsp_ptr.store<Pointer>(Pointer.NULL);
+ 		curStack = X86_64Stack.!(target_stack);
+ 		curStack.state_ = StackState.RUNNING;
+ 		curStack.pushN(vals);
+ 		curStack.push(Value.Cont(this_cont));
++		// Detach {prev} from its parent only *after* the last allocation above.
++		// A GC triggered by {push} above walks the native stack starting on {prev}
++		// (still the running stack); severing {prev}'s parent link before that
++		// point would stop the walk short of the initial stack, leaving roots held
++		// in ancestor frames (e.g. the outermost stack in X86_64Stack.resume)
++		// un-forwarded and corrupting them.
++		prev.parent = null;
++		prev.parent_rsp_ptr.store<Pointer>(Pointer.NULL);
+ 		// RT calls will pop off the top value of {curStack.rsp} on return; push a
+ 		// value so that the return address is not popped off.
+ 		curStack.pushRspPointer(Pointer.NULL);

@@ -899,14 +899,28 @@ $WT objdump --addresses --bytes --addrmap=true --traps=true itersum_switch_wasmf
    the `instance` argument the SPC code passed from its frame slot was not an `Instance`.
    `--mode=int` prints the right result; Wizard's 27 `switch*` regress tests pass in `jit`; the
    distilled `pingpong` (same handler shape, no tables/`try_table`/`resume_throw`) runs in `spc`.
-   Not root-caused here; the module is `compiler-diff/itersum_switch_wasmfx.wasm` and the repro is
+   The module is `compiler-diff/itersum_switch_wasmfx.wasm` and the repro is
    `wizeng.x86-64-linux --ext:stack-switching --ext:gc --stack-size=65536 --mode=spc compiler-diff/itersum_switch_wasmfx.wasm 1000`.
+   **Root-caused and fixed** — `visit_RESUME_THROW`/`visit_RESUME_THROW_REF` copy the continuation
+   stack into `runtime_arg2` *after* `emit_load_instance` has already overwritten that register,
+   so the runtime unwinds the `Instance` as if it were a stack and writes `-8` over
+   `instance.tables`. See [`wizard-bugs/`](wizard-bugs/README.md) (bug A) for the disassembly,
+   the gdb before/after dump, the patch and a `.bin.wast` regression test.
 5. **Wizard interpreter GC crash under switch pressure.** `--mode=int` at 10 M iterations of
    either switch workload: `!GcError: invalid reference … in Semispace.scanSlot() … in
    NativeStackScanner.scanStack() … in X86_64Runtime.runtime_handle_switch()` — the Virgil
    collector, triggered by the per-switch allocation from inside `runtime_handle_switch`
    called from the interpreter, finds a bad reference while scanning native frames. `spc` mode
-   survives the same allocation rate. Not root-caused.
+   survives the same allocation rate.
+   **Root-caused and fixed** — `runtime_handle_switch` nulls `prev.parent`/`prev.parent_rsp_ptr`
+   *before* its last allocation (`curStack.push(Value.Cont(...))`), so a collection triggered
+   there cannot walk past the just-detached stack and leaves roots in ancestor frames — notably
+   the outermost stack held in `X86_64Stack.resume`'s frame — un-forwarded. `runtime_handle_suspend`
+   detaches after its allocations, which is why only `switch` was affected. Two corrections to the
+   observations above: `spc` is **not** immune — it merely did not sample the window with the
+   modules tried here, and a test that decorrelates the collector phase reproduces in all three
+   tiers; and the abort is not the only outcome, a missed root equally produces a silently wrong
+   result. See [`wizard-bugs/`](wizard-bugs/README.md) (bug B).
 6. **`wizeng` passes no arguments to an exported `main(i32)`** — it invoked `main(0)`
    (`src/WasmMode.v3:151`: `findMain` returns `Arrays.map(found.sig.params, Values.default)`, so
    every parameter is its type's default). Worked around by baking `N` into the module.
@@ -1108,9 +1122,12 @@ switch, i.e. most of the 19×.
 - **`resume_throw` / exceptions through a suspended frame** are untouched (they stay on the
   runtime path: `runtime_resume_throw_ref` → `stack.throw`).
 - **Bugs found here that are prerequisites**: §5.2 (validator immediate order) blocks any
-  `resume_throw` workload; §5.4 (SPC crash on the fiber-c switch module) needs root-causing
-  before the fiber-c switch benchmarks can be the acceptance test; §5.5 (interpreter GC crash)
-  likely disappears with Stage 1.2's allocation removal but should be understood, not hidden.
+  `resume_throw` workload and is still open; §5.4 (SPC crash on the fiber-c switch module) and
+  §5.5 (interpreter GC crash) are both root-caused and fixed in
+  [`wizard-bugs/`](wizard-bugs/README.md), each with a `.bin.wast` regression test, so the
+  fiber-c switch benchmarks can now serve as the acceptance test. §5.5's GC-unsafe window is
+  worth keeping in mind for Stage 1.2: removing the per-switch allocation would hide it rather
+  than fix it.
 
 ### 7.6 What to measure to validate the design
 

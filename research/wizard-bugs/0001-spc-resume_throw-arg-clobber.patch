@@ -1,0 +1,44 @@
+diff --git a/src/engine/compiler/SinglePassCompiler.v3 b/src/engine/compiler/SinglePassCompiler.v3
+index 073480f8..37b5474b 100644
+--- a/src/engine/compiler/SinglePassCompiler.v3
++++ b/src/engine/compiler/SinglePassCompiler.v3
+@@ -1624,6 +1624,11 @@ class SinglePassCompiler(xenv: SpcExecEnv, masm: MacroAssembler, regAlloc: RegAl
+ 		masm.emit_validate_and_consume_cont(contStack, cont);
+ 
+ 		state.emitSaveAll(resolver, SpillMode.SAVE_AND_FREE_REGS);
++		// Move {contStack} into its argument register *before* loading the other
++		// runtime arguments: {contStack} may be allocated to {runtime_arg0} or
++		// {runtime_arg1}, which the {emit_get_curstack}/{emit_load_instance} calls
++		// below overwrite. Copying it out first keeps arg2 correct regardless.
++		masm.emit_mov_r_r(ValueKind.REF, regs.runtime_arg2, contStack);
+ 		emit_compute_vsp(regs.vsp, state.sp);
+ 		emit_spill_vsp(xenv.vsp);
+ 		masm.emit_store_curstack_vsp(regs.vsp);
+@@ -1631,7 +1636,6 @@ class SinglePassCompiler(xenv: SpcExecEnv, masm: MacroAssembler, regAlloc: RegAl
+ 		masm.emit_v3_set_X86_64Stack_rsp_r_r(regs.runtime_arg0, regs.sp);
+ 		masm.emit_push_X86_64Stack_rsp_r_r(regs.runtime_arg0);
+ 		emit_load_instance(regs.runtime_arg1);
+-		masm.emit_mov_r_r(ValueKind.REF, regs.runtime_arg2, contStack);
+ 		masm.emit_mov_r_i(regs.runtime_arg3, tag_id);
+ 		masm.emit_call_runtime_RESUME_THROW();
+ 		dropN(u32.!(tag.fields.length));
+@@ -1703,6 +1707,11 @@ class SinglePassCompiler(xenv: SpcExecEnv, masm: MacroAssembler, regAlloc: RegAl
+ 
+ 		popFixedReg(regs.runtime_arg3);
+ 		state.emitSaveAll(resolver, SpillMode.SAVE_AND_FREE_REGS);
++		// Move {contStack} into its argument register *before* loading the other
++		// runtime arguments: {contStack} may be allocated to {runtime_arg0} or
++		// {runtime_arg1}, which the {emit_get_curstack}/{emit_load_instance} calls
++		// below overwrite. Copying it out first keeps arg2 correct regardless.
++		masm.emit_mov_r_r(ValueKind.REF, regs.runtime_arg2, contStack);
+ 		emit_compute_vsp(regs.vsp, state.sp);
+ 		emit_spill_vsp(xenv.vsp);
+ 		masm.emit_store_curstack_vsp(regs.vsp);
+@@ -1710,7 +1719,6 @@ class SinglePassCompiler(xenv: SpcExecEnv, masm: MacroAssembler, regAlloc: RegAl
+ 		masm.emit_v3_set_X86_64Stack_rsp_r_r(regs.runtime_arg0, regs.sp);
+ 		masm.emit_push_X86_64Stack_rsp_r_r(regs.runtime_arg0);
+ 		emit_load_instance(regs.runtime_arg1);
+-		masm.emit_mov_r_r(ValueKind.REF, regs.runtime_arg2, contStack);
+ 		masm.emit_call_runtime_RESUME_THROW_REF();
+ 		// {RT.runtime_handle_resume_throw} returns a {Continuation} by pushing onto the stack
+ 		// XXX: make RT function return {Continuation} directly
